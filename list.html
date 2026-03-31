@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liste des Militants</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>Liste des Militants</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Téléphone</th>
+        <th>Date d'ajout</th>
+      </tr>
+    </thead>
+    <tbody id="militantsTable">
+      <!-- Les militants s'afficheront ici -->
+    </tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    // 🔹 Config Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+      authDomain: "militant-eed81.firebaseapp.com",
+      projectId: "militant-eed81",
+      storageBucket: "militant-eed81.appspot.com",
+      messagingSenderId: "705643782444",
+      appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const tableBody = document.getElementById("militantsTable");
+
+    async function afficherMilitants() {
+      // 🔹 Récupérer tous les militants triés par date
+      const q = query(collection(db, "militants"), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+
+      tableBody.innerHTML = ""; // vider le tableau avant de remplir
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.nom}</td>
+          <td>${data.prenom}</td>
+          <td>${data.telephone}</td>
+          <td>${new Date(data.date.seconds*1000).toLocaleString()}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Charger les militants au démarrage
+    afficherMilitants();
+  </script>
+</body>
+  </html>
