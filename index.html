@@ -1,79 +1,579 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html class="light" lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App Militants</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Civic Architect - Accueil</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed-dim": "#ffb77d",
+              "secondary-fixed-dim": "#ffb95f",
+              "surface-container-high": "#dee9fc",
+              "surface-container-lowest": "#ffffff",
+              "surface-dim": "#d0dbed",
+              "secondary-container": "#fea619",
+              "on-secondary-fixed-variant": "#653e00",
+              "on-primary-fixed-variant": "#00513b",
+              "inverse-primary": "#8bd6b6",
+              "error-container": "#ffdad6",
+              "on-primary-fixed": "#002116",
+              "on-error": "#ffffff",
+              "error": "#ba1a1a",
+              "on-tertiary-fixed-variant": "#6e3900",
+              "inverse-on-surface": "#eaf1ff",
+              "on-surface": "#121c2a",
+              "outline-variant": "#bfc9c4",
+              "background": "#f8f9ff",
+              "surface-variant": "#d9e3f6",
+              "on-surface-variant": "#3f4945",
+              "surface-tint": "#1b6b51",
+              "secondary": "#855300",
+              "on-tertiary-fixed": "#2f1500",
+              "on-secondary": "#ffffff",
+              "primary-fixed-dim": "#8bd6b6",
+              "on-tertiary-container": "#ff9733",
+              "surface-container-low": "#eff4ff",
+              "surface-container-highest": "#d9e3f6",
+              "outline": "#707975",
+              "on-error-container": "#93000a",
+              "tertiary-fixed": "#ffdcc3",
+              "secondary-fixed": "#ffddb8",
+              "surface-container": "#e6eeff",
+              "primary-fixed": "#a6f2d1",
+              "inverse-surface": "#27313f",
+              "tertiary": "#482400",
+              "primary": "#003525",
+              "on-secondary-container": "#684000",
+              "tertiary-container": "#693600",
+              "on-primary-container": "#75bfa0",
+              "on-tertiary": "#ffffff",
+              "on-background": "#121c2a",
+              "surface": "#f8f9ff",
+              "on-secondary-fixed": "#2a1700",
+              "surface-bright": "#f8f9ff",
+              "on-primary": "#ffffff",
+              "primary-container": "#004e38"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: #004e38;
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+        .ticker__item {
+            display: inline-block;
+            padding: 0 2rem;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .notification-show {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #fea619;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
 </head>
-<body>
-  <h1>Ajouter un militant</h1>
+<body class="bg-background text-on-background font-body selection:bg-secondary-container selection:text-on-secondary-container">
 
-  <form id="militantForm">
-    <input type="text" id="nom" placeholder="Nom" required>
-    <input type="text" id="prenom" placeholder="Prénom" required>
-    <input type="text" id="telephone" placeholder="Téléphone" required>
-    <button type="submit">Ajouter</button>
-  </form>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#003525] shadow-lg shadow-black/20 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#fea619]" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<h1 class="text-xl font-black tracking-widest text-[#f8f9ff] uppercase font-manrope">CIVIC ARCHITECT</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-emerald-200/70 hover:text-[#fea619] transition-colors active:scale-95 duration-150" onclick="showNotification('📢 Nouvelles fonctionnalités disponibles !', 'info')">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
 
-  <div id="status"></div>
+<!-- Main Content Canvas -->
+<main class="pt-16 pb-32">
+<!-- Scrolling News Ticker -->
+<div class="ticker-wrap h-10 flex items-center shadow-md">
+<div class="ticker text-[#fea619] font-label text-[10px] uppercase tracking-widest font-bold" id="tickerContent">
+<span class="ticker__item">🎉 Chargement...</span>
+</div>
+</div>
 
-  <script type="module">
-    // 1️⃣ Import Firebase JS SDK
+<div class="px-6 mt-8 max-w-7xl mx-auto">
+<!-- Hero / Welcome Section -->
+<section class="relative overflow-hidden rounded-xl mb-8 bg-primary-container p-8 min-h-[220px] flex flex-col justify-end">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-30 mix-blend-overlay" alt="abstract architectural details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRdjUQfw_NGZCEootCRtQN0ipK27dxFY7yPAl2YjpB82V5qBPm32Fnc91gyeBUaTCn-lcYMjem0jKspXfoR-MZfz1of2DYn4N3FDrYQkKsWqmhBkLwahf_yzo6hKCz7Lez-O6PQOnZCAVKL0llURcse9TePwPySysG68BldObwDiczo5aKrGig1l7jj8e4SGBtFNFHPXeiuFLtkLMHJNuiDYBkia1rS2_tyjE4TPb69nSLcpHp8itkyrUqbTTGdy3NpReH8YiePXTT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent"></div>
+</div>
+<div class="relative z-10">
+<p class="text-on-primary-container font-label text-[12px] uppercase tracking-[0.2em] mb-2">TABLEAU DE BORD MILITANT</p>
+<h2 class="text-display-sm font-headline text-3xl font-extrabold text-white leading-tight">
+Bienvenue, <span class="text-secondary-container" id="userName">Administrateur</span>.
+</h2>
+<p class="text-emerald-100/70 mt-2 max-w-md">Votre action aujourd'hui construit la démocratie de demain. Suivez vos dossiers et engagez-vous.</p>
+</div>
+</section>
+
+<!-- Statistiques rapides -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-on-surface-variant text-sm">Total militants</p>
+                <p class="text-3xl font-black text-primary" id="totalMilitants">0</p>
+            </div>
+            <span class="material-symbols-outlined text-4xl text-secondary-container">groups</span>
+        </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-on-surface-variant text-sm">Nouveaux (30j)</p>
+                <p class="text-3xl font-black text-primary" id="nouveauxMois">0</p>
+            </div>
+            <span class="material-symbols-outlined text-4xl text-secondary-container">trending_up</span>
+        </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-on-surface-variant text-sm">Quartier actif</p>
+                <p class="text-base font-bold text-primary truncate" id="topQuartier">—</p>
+            </div>
+            <span class="material-symbols-outlined text-4xl text-secondary-container">location_on</span>
+        </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-on-surface-variant text-sm">Taux de progression</p>
+                <p class="text-3xl font-black text-primary" id="tauxProgression">0%</p>
+            </div>
+            <span class="material-symbols-outlined text-4xl text-secondary-container">target</span>
+        </div>
+    </div>
+</div>
+
+<!-- Grid Layout Inspiration -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Action Cards -->
+<a href="add.html" class="group flex flex-col justify-between items-start p-6 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all border-none relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-primary/5 flex items-center justify-center text-primary mb-12 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">person_add</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-primary leading-none mb-1">Ajouter un militant</h3>
+<p class="text-sm text-on-surface-variant">Enregistrer un nouveau soutien</p>
+</div>
+<span class="absolute top-6 right-6 text-primary opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</a>
+
+<a href="list.html" class="group flex flex-col justify-between items-start p-6 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all border-none relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-secondary/5 flex items-center justify-center text-secondary mb-12 group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-primary leading-none mb-1">Liste des militants</h3>
+<p class="text-sm text-on-surface-variant">Consulter et gérer</p>
+</div>
+<span class="absolute top-6 right-6 text-secondary opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</a>
+
+<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-secondary-container rounded-xl shadow-sm hover:shadow-lg transition-all border-none relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-white/20 flex items-center justify-center text-on-secondary mb-12">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-on-secondary-container leading-none mb-1">Devenir membre</h3>
+<p class="text-sm text-on-secondary-container/70">Adhésion formelle au parti</p>
+</div>
+<span class="absolute top-6 right-6 text-on-secondary-container opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</button>
+
+<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all border-none relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-primary/5 flex items-center justify-center text-primary mb-12 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">credit_card</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-primary leading-none mb-1">Commander une carte</h3>
+<p class="text-sm text-on-surface-variant">Carte de membre officielle</p>
+</div>
+<span class="absolute top-6 right-6 text-primary opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</button>
+</div>
+
+<!-- Dernières activités -->
+<section class="mt-12">
+<div class="flex justify-between items-end mb-6">
+<h2 class="font-headline text-2xl font-extrabold text-primary uppercase tracking-tight">Dernières Activités</h2>
+<a href="list.html" class="text-secondary font-bold text-sm flex items-center gap-1 hover:underline">Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Derniers militants ajoutés -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden">
+<div class="bg-primary-container p-4">
+<h3 class="font-bold text-white flex items-center gap-2">
+<span class="material-symbols-outlined">person_add</span>
+Derniers inscrits
+</h3>
+</div>
+<div class="p-4 space-y-3" id="derniersMilitants">
+<div class="text-center py-4 text-gray-500">Chargement...</div>
+</div>
+</div>
+
+<!-- Carte d'objectif -->
+<div class="bg-primary text-white rounded-xl p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-4">
+<div class="h-2 w-2 rounded-full bg-secondary-container animate-pulse"></div>
+<span class="text-[10px] font-bold uppercase tracking-widest text-emerald-200">Objectif 2026</span>
+</div>
+<h4 class="font-headline font-bold text-xl mb-4">Objectif National : 1000 Militants</h4>
+<div class="w-full bg-primary-container h-3 rounded-full overflow-hidden mb-2">
+<div id="progressBar" class="bg-secondary-container h-full rounded-full" style="width: 0%"></div>
+</div>
+<div class="flex justify-between text-[11px] font-bold text-emerald-100">
+<span id="progressCurrent">0</span>
+<span id="progressPercent">0%</span>
+</div>
+</div>
+<a href="add.html" class="mt-8 bg-surface-container-lowest text-primary py-3 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary transition-colors text-center block">Ajouter un militant</a>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="bg-surface-container-low rounded-xl p-6">
+<h3 class="font-bold text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">analytics</span>
+Statistiques
+</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="text-on-surface-variant">Militants</span>
+<span class="font-bold text-primary" id="statTotal">0</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div id="statBar" class="bg-secondary-container h-full rounded-full" style="width: 0%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="text-on-surface-variant">Croissance mensuelle</span>
+<span class="font-bold text-primary" id="statCroissance">0</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div id="statCroissanceBar" class="bg-emerald-500 h-full rounded-full" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-white/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-8px_24px_-2px_rgba(18,28,42,0.06)]">
+<a href="dashboard.html" class="flex flex-col items-center justify-center bg-[#fea619] text-[#003525] rounded-xl px-5 py-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a href="list.html" class="flex flex-col items-center justify-center text-emerald-900/60 px-5 py-2 hover:bg-emerald-50 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">group</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Directory</span>
+</a>
+<a href="add.html" class="flex flex-col items-center justify-center text-emerald-900/60 px-5 py-2 hover:bg-emerald-50 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Actions</span>
+</a>
+<button onclick="showComingSoon()" class="flex flex-col items-center justify-center text-emerald-900/60 px-5 py-2 hover:bg-emerald-50 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</button>
+</nav>
+
+<!-- Notification flottante -->
+<div id="floatingNotification" class="fixed top-20 right-4 z-50 hidden max-w-sm bg-white rounded-xl shadow-lg p-4 notification-show"></div>
+
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        query, 
+        orderBy, 
+        limit,
+        where,
+        Timestamp
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // 2️⃣ Config Firebase (remplace par la tienne)
+    // Configuration Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
-      authDomain: "militant-eed81.firebaseapp.com",
-      projectId: "militant-eed81",
-      storageBucket: "militant-eed81.appspot.com",
-      messagingSenderId: "705643782444",
-      appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+        authDomain: "militant-eed81.firebaseapp.com",
+        projectId: "militant-eed81",
+        storageBucket: "militant-eed81.appspot.com",
+        messagingSenderId: "705643782444",
+        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    
+    let totalMilitants = 0;
+    let nouveauxMois = 0;
+    let derniersMilitants = [];
+    let topQuartierData = null;
+    
+    // Formater la date Firebase
+    function formatDate(date) {
+        if (!date) return '';
+        if (date instanceof Timestamp) {
+            return date.toDate();
+        }
+        return date;
+    }
+    
+    // Obtenir le début du mois
+    function getStartOfMonth() {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+    
+    // Charger toutes les données
+    async function loadDashboardData() {
+        try {
+            const militantsRef = collection(db, 'militants');
+            
+            // 1. Total des militants
+            const allSnapshot = await getDocs(militantsRef);
+            totalMilitants = allSnapshot.size;
+            
+            // 2. Nouveaux du mois
+            const debutMois = getStartOfMonth();
+            const moisQuery = query(militantsRef, where('date_inscription', '>=', debutMois));
+            const moisSnapshot = await getDocs(moisQuery);
+            nouveauxMois = moisSnapshot.size;
+            
+            // 3. Quartier le plus actif
+            const quartierMap = new Map();
+            allSnapshot.forEach(doc => {
+                const data = doc.data();
+                const quartier = data.quartier;
+                if (quartier && quartier.trim()) {
+                    quartierMap.set(quartier, (quartierMap.get(quartier) || 0) + 1);
+                }
+            });
+            
+            let topQuartier = '';
+            let topCount = 0;
+            for (const [quartier, count] of quartierMap) {
+                if (count > topCount) {
+                    topCount = count;
+                    topQuartier = quartier;
+                }
+            }
+            topQuartierData = topQuartier;
+            
+            // 4. Derniers militants (5 derniers)
+            const derniersQuery = query(militantsRef, orderBy('date_inscription', 'desc'), limit(5));
+            const derniersSnapshot = await getDocs(derniersQuery);
+            derniersMilitants = [];
+            derniersSnapshot.forEach(doc => {
+                const data = doc.data();
+                derniersMilitants.push({
+                    nom: data.nom || '',
+                    prenom: data.prenom || '',
+                    quartier: data.quartier || '',
+                    date_inscription: formatDate(data.date_inscription)
+                });
+            });
+            
+            // Mettre à jour l'interface
+            updateUI();
+            
+        } catch (error) {
+            console.error('Erreur chargement:', error);
+            showNotification('Erreur de chargement des données', 'error');
+        }
+    }
+    
+    // Mettre à jour l'interface
+    function updateUI() {
+        // Statistiques principales
+        document.getElementById('totalMilitants').textContent = totalMilitants;
+        document.getElementById('nouveauxMois').textContent = nouveauxMois;
+        document.getElementById('topQuartier').textContent = topQuartierData || '—';
+        
+        const progression = Math.min(100, Math.round((totalMilitants / 1000) * 100));
+        document.getElementById('tauxProgression').textContent = `${progression}%`;
+        
+        // Ticker
+        const tickerContent = document.getElementById('tickerContent');
+        tickerContent.innerHTML = `
+            <span class="ticker__item">🎉 ${totalMilitants} militants enregistrés •</span>
+            <span class="ticker__item">✨ +${nouveauxMois} nouveaux ce mois-ci •</span>
+            <span class="ticker__item">📍 ${topQuartierData ? topQuartierData + ' est le quartier le plus actif' : 'Aucun quartier enregistré'} •</span>
+            <span class="ticker__item">📱 Application mobile disponible •</span>
+            <span class="ticker__item">🤝 Ensemble, construisons l'avenir •</span>
+        `;
+        
+        // Barre de progression objectif
+        const progressPercent = (totalMilitants / 1000) * 100;
+        const percentValue = Math.min(100, progressPercent);
+        document.getElementById('progressBar').style.width = `${percentValue}%`;
+        document.getElementById('progressCurrent').textContent = `${totalMilitants.toLocaleString()} / 1 000`;
+        document.getElementById('progressPercent').textContent = `${Math.round(percentValue)}%`;
+        
+        // Statistiques secondaires
+        document.getElementById('statTotal').textContent = totalMilitants;
+        document.getElementById('statBar').style.width = `${Math.min(100, (totalMilitants / 1000) * 100)}%`;
+        document.getElementById('statCroissance').textContent = `+${nouveauxMois}`;
+        document.getElementById('statCroissanceBar').style.width = `${Math.min(100, (nouveauxMois / 50) * 100)}%`;
+        
+        // Derniers militants
+        const derniersContainer = document.getElementById('derniersMilitants');
+        if (derniersMilitants.length > 0) {
+            derniersContainer.innerHTML = derniersMilitants.map(m => {
+                let dateStr = '';
+                if (m.date_inscription) {
+                    dateStr = m.date_inscription.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+                }
+                return `
+                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20 last:border-0">
+                    <div>
+                        <p class="font-semibold text-primary">${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</p>
+                        <p class="text-xs text-on-surface-variant">${escapeHtml(m.quartier) || 'Quartier non renseigné'}</p>
+                    </div>
+                    <span class="text-xs text-on-surface-variant">${dateStr}</span>
+                </div>
+            `}).join('');
+        } else {
+            derniersContainer.innerHTML = '<p class="text-on-surface-variant text-center py-4">Aucun militant enregistré</p>';
+        }
+    }
+    
+    // Échapper les caractères HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    
+    // Afficher notification
+    window.showNotification = function(message, type) {
+        const notif = document.getElementById('floatingNotification');
+        notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-blue-50', 'border-green-200', 'border-red-200', 'border-blue-200', 'text-green-800', 'text-red-800', 'text-blue-800');
+        
+        if (type === 'success') {
+            notif.classList.add('bg-green-50', 'border-green-200', 'text-green-800', 'border');
+            notif.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">check_circle</span><span>${message}</span></div>`;
+        } else if (type === 'info') {
+            notif.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800', 'border');
+            notif.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">info</span><span>${message}</span></div>`;
+        } else {
+            notif.classList.add('bg-red-50', 'border-red-200', 'text-red-800', 'border');
+            notif.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">error</span><span>${message}</span></div>`;
+        }
+        
+        setTimeout(() => {
+            notif.classList.add('hidden');
+        }, 4000);
+    };
+    
+    // Fonction pour les fonctionnalités à venir
+    window.showComingSoon = function() {
+        showNotification('🚀 Fonctionnalité bientôt disponible !', 'info');
+    };
+    
+    // Charger les données au démarrage
+    loadDashboardData();
+</script>
 
-    const form = document.getElementById('militantForm');
-    const status = document.getElementById('status');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const nom = document.getElementById('nom').value.trim();
-      const prenom = document.getElementById('prenom').value.trim();
-      const telephone = document.getElementById('telephone').value.trim();
-
-      if (!nom || !prenom || !telephone) {
-        status.textContent = "Tous les champs sont obligatoires.";
-        return;
-      }
-
-      // 3️⃣ Vérifier doublon
-      const q = query(collection(db, "militants"), where("telephone", "==", telephone));
-      const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        status.textContent = "Ce numéro est déjà enregistré !";
-        return;
-      }
-
-      // 4️⃣ Ajouter militant
-      try {
-        await addDoc(collection(db, "militants"), {
-          nom,
-          prenom,
-          telephone,
-          date: new Date()
-        });
-        status.textContent = "Militant ajouté avec succès !";
-        form.reset();
-      } catch (err) {
-        console.error(err);
-        status.textContent = "Erreur lors de l'ajout.";
-      }
-    });
-  </script>
 </body>
-  </html>
+  </html> 
