@@ -1,73 +1,447 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html class="light" lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liste des Militants</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f4f4f4; }
-  </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Liste des Militants - Civic Architect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, .brand-font { font-family: 'Manrope', sans-serif; }
+    
+    /* Animation pour les cartes */
+    .card-enter {
+        animation: fadeInUp 0.3s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Animation pour la notification */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .notification-show {
+        animation: slideDown 0.3s ease-out;
+    }
+    
+    body {
+        min-height: max(884px, 100dvh);
+    }
+</style>
 </head>
-<body>
-  <h1>Liste des Militants</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Téléphone</th>
-        <th>Date d'ajout</th>
-      </tr>
-    </thead>
-    <tbody id="militantsTable">
-      <!-- Les militants s'afficheront ici -->
-    </tbody>
-  </table>
+<body class="bg-background text-on-background min-h-screen pb-32">
 
-  <script type="module">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#003525] shadow-lg flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-4">
+<a href="dashboard.html" class="text-emerald-50 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</a>
+<span class="text-xl font-black text-[#fea619] tracking-widest">CIVIC ARCHITECT</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
+<span class="material-symbols-outlined text-white">person</span>
+</div>
+</header>
+
+<main class="mt-20 px-4 max-w-lg mx-auto">
+<!-- Header Section -->
+<div class="mb-6">
+<h1 class="text-3xl font-extrabold text-primary tracking-tight mb-2">Liste des militants</h1>
+<p class="text-on-surface-variant font-medium">Gérez et contactez vos militants facilement</p>
+</div>
+
+<!-- Barre de recherche -->
+<div class="mb-6">
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm">search</span>
+<input type="text" id="searchInput" class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 pl-11 pr-4 text-on-surface placeholder:text-outline-variant transition-all" placeholder="Rechercher par nom, prénom, téléphone ou quartier..."/>
+</div>
+</div>
+
+<!-- Notification Area -->
+<div id="notification" class="hidden mb-4 rounded-xl p-4 notification-show"></div>
+
+<!-- Compteur -->
+<div class="flex justify-between items-center mb-4">
+<span class="text-sm text-on-surface-variant">Total: <span id="totalCount">0</span> militant(s)</span>
+<a href="add.html" class="text-[#fea619] text-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+Ajouter
+</a>
+</div>
+
+<!-- Liste des militants -->
+<div id="militantsList" class="space-y-4 mb-6">
+<div class="text-center py-8 text-gray-500">Chargement...</div>
+</div>
+</main>
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-lg">
+<a href="dashboard.html" class="flex flex-col items-center justify-center text-gray-500 px-4 py-1.5 hover:bg-gray-50 transition-all active:scale-90">
+<span class="material-symbols-outlined text-2xl mb-1">dashboard</span>
+<span class="font-inter text-[11px] font-semibold uppercase">Home</span>
+</a>
+<a href="list.html" class="flex flex-col items-center justify-center bg-[#fea619] text-[#003525] rounded-xl px-4 py-1.5 transition-all active:scale-90">
+<span class="material-symbols-outlined text-2xl mb-1" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-inter text-[11px] font-semibold uppercase">Directory</span>
+</a>
+<a href="add.html" class="flex flex-col items-center justify-center text-gray-500 px-4 py-1.5 hover:bg-gray-50 transition-all active:scale-90">
+<span class="material-symbols-outlined text-2xl mb-1">bolt</span>
+<span class="font-inter text-[11px] font-semibold uppercase">Actions</span>
+</a>
+<button onclick="showComingSoon()" class="flex flex-col items-center justify-center text-gray-500 px-4 py-1.5 hover:bg-gray-50 transition-all active:scale-90">
+<span class="material-symbols-outlined text-2xl mb-1">person</span>
+<span class="font-inter text-[11px] font-semibold uppercase">Profile</span>
+</button>
+</nav>
+
+<!-- Modal pour afficher l'image -->
+<div id="imageModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4" onclick="closeModal()">
+    <div class="relative max-w-full max-h-full" onclick="event.stopPropagation()">
+        <img id="modalImage" class="max-w-full max-h-[90vh] object-contain rounded-lg" alt="Carte électeur">
+        <button onclick="closeModal()" class="absolute -top-10 right-0 text-white bg-black/50 rounded-full p-2">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+</div>
+
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        deleteDoc, 
+        doc,
+        query, 
+        orderBy,
+        where
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // 🔹 Config Firebase
+    // Configuration Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
-      authDomain: "militant-eed81.firebaseapp.com",
-      projectId: "militant-eed81",
-      storageBucket: "militant-eed81.appspot.com",
-      messagingSenderId: "705643782444",
-      appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+        authDomain: "militant-eed81.firebaseapp.com",
+        projectId: "militant-eed81",
+        storageBucket: "militant-eed81.appspot.com",
+        messagingSenderId: "705643782444",
+        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    
+    let tousMilitants = [];
+    let rechercheTimeout;
 
-    const tableBody = document.getElementById("militantsTable");
-
-    async function afficherMilitants() {
-      // 🔹 Récupérer tous les militants triés par date
-      const q = query(collection(db, "militants"), orderBy("date", "desc"));
-      const snapshot = await getDocs(q);
-
-      tableBody.innerHTML = ""; // vider le tableau avant de remplir
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${data.nom}</td>
-          <td>${data.prenom}</td>
-          <td>${data.telephone}</td>
-          <td>${new Date(data.date.seconds*1000).toLocaleString()}</td>
-        `;
-        tableBody.appendChild(row);
-      });
+    // Charger tous les militants
+    async function chargerMilitants() {
+        try {
+            const q = query(collection(db, "militants"), orderBy("date_inscription", "desc"));
+            const snapshot = await getDocs(q);
+            
+            tousMilitants = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                // Convertir la date Firebase
+                let dateInscription = data.date_inscription;
+                if (dateInscription && dateInscription.seconds) {
+                    dateInscription = new Date(dateInscription.seconds * 1000);
+                } else if (dateInscription && dateInscription.toDate) {
+                    dateInscription = dateInscription.toDate();
+                } else {
+                    dateInscription = new Date();
+                }
+                
+                tousMilitants.push({
+                    id: doc.id,
+                    nom: data.nom || '',
+                    prenom: data.prenom || '',
+                    telephone: data.telephone || '',
+                    quartier: data.quartier || '',
+                    carte_electeur: data.carte_electeur || '',
+                    centre_vote: data.centre_vote || '',
+                    responsable: data.responsable || '',
+                    carte_electeur_image: data.carte_electeur_image || null,
+                    date_inscription: dateInscription,
+                    statut: data.statut || 'actif'
+                });
+            });
+            
+            afficherMilitants(tousMilitants);
+            
+        } catch (error) {
+            console.error("Erreur chargement:", error);
+            document.getElementById('militantsList').innerHTML = `
+                <div class="bg-white rounded-xl p-8 text-center border border-gray-200">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-3">error</span>
+                    <p class="text-gray-500">Erreur de chargement des données</p>
+                    <button onclick="location.reload()" class="mt-3 text-[#fea619] font-semibold">Réessayer</button>
+                </div>
+            `;
+        }
     }
+    
+    // Afficher les militants
+    function afficherMilitants(militants) {
+        const container = document.getElementById('militantsList');
+        const totalCount = document.getElementById('totalCount');
+        
+        totalCount.textContent = militants.length;
+        
+        if (militants.length === 0) {
+            container.innerHTML = `
+                <div class="bg-white rounded-xl p-8 text-center border border-gray-200">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-3">groups</span>
+                    <p class="text-gray-500">Aucun militant trouvé</p>
+                    <a href="add.html" class="inline-block mt-3 text-[#fea619] font-semibold">Ajouter un militant</a>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = militants.map((m, index) => `
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 transition-all hover:shadow-md card-enter" style="animation-delay: ${index * 0.05}s">
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-[#003525]">${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</h3>
+                            ${m.quartier ? `
+                            <p class="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                                <span class="material-symbols-outlined text-sm">location_on</span>
+                                ${escapeHtml(m.quartier)}
+                            </p>
+                            ` : ''}
+                        </div>
+                        <div class="flex gap-2">
+                            ${m.telephone ? `
+                            <button onclick="ouvrirWhatsApp('${m.telephone}', '${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}')" 
+                                    class="bg-green-500 hover:bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all active:scale-95">
+                                <span class="material-symbols-outlined text-xl">whatsapp</span>
+                            </button>
+                            ` : ''}
+                            <button onclick="supprimerMilitant('${m.id}')" 
+                                    class="bg-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all active:scale-95">
+                                <span class="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                        ${m.telephone ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">call</span>
+                            <a href="tel:${m.telephone}" class="hover:text-[#fea619] transition">${escapeHtml(m.telephone)}</a>
+                        </p>
+                        ` : ''}
+                        
+                        ${m.carte_electeur ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">id_card</span>
+                            <span>${escapeHtml(m.carte_electeur)}</span>
+                        </p>
+                        ` : ''}
+                        
+                        ${m.centre_vote ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">how_to_vote</span>
+                            <span>${escapeHtml(m.centre_vote)}</span>
+                        </p>
+                        ` : ''}
+                        
+                        ${m.responsable ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">person</span>
+                            <span>Responsable: ${escapeHtml(m.responsable)}</span>
+                        </p>
+                        ` : ''}
+                    </div>
+                    
+                    ${m.carte_electeur_image ? `
+                    <div class="mt-3">
+                        <button onclick="voirImage('${m.carte_electeur_image}')" 
+                                class="text-xs text-[#003525] hover:text-[#fea619] transition flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                            Voir la carte électeur
+                        </button>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mt-3 pt-2 border-t border-gray-100">
+                        <p class="text-xs text-gray-400">
+                            Inscrit le: ${formatDate(m.date_inscription)}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Recherche
+    function rechercherMilitants(terme) {
+        if (!terme || terme.length < 2) {
+            afficherMilitants(tousMilitants);
+            return;
+        }
+        
+        const termeLower = terme.toLowerCase();
+        const filtres = tousMilitants.filter(m => 
+            (m.nom && m.nom.toLowerCase().includes(termeLower)) ||
+            (m.prenom && m.prenom.toLowerCase().includes(termeLower)) ||
+            (m.telephone && m.telephone.includes(terme)) ||
+            (m.quartier && m.quartier.toLowerCase().includes(termeLower))
+        );
+        
+        afficherMilitants(filtres);
+    }
+    
+    // Supprimer un militant
+    window.supprimerMilitant = async function(id) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce militant ?')) {
+            try {
+                await deleteDoc(doc(db, "militants", id));
+                showNotification('✅ Militant supprimé avec succès', 'success');
+                // Recharger la liste
+                await chargerMilitants();
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                showNotification('❌ Erreur lors de la suppression', 'error');
+            }
+        }
+    };
+    
+    // Ouvrir WhatsApp
+    window.ouvrirWhatsApp = function(phone, name) {
+        if (!phone) {
+            showNotification('Numéro de téléphone non disponible', 'error');
+            return;
+        }
+        
+        // Nettoyer le numéro (garder seulement les chiffres)
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const message = encodeURIComponent(`Bonjour ${name}, ce message vous est envoyé depuis l'application de gestion des militants.`);
+        window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+    };
+    
+    // Voir l'image
+    window.voirImage = function(imageUrl) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageUrl;
+        modal.classList.remove('hidden');
+    };
+    
+    // Fermer le modal
+    window.closeModal = function() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.add('hidden');
+        document.getElementById('modalImage').src = '';
+    };
+    
+    // Fonction pour les fonctionnalités à venir
+    window.showComingSoon = function() {
+        showNotification('🚀 Fonctionnalité bientôt disponible !', 'info');
+    };
+    
+    // Afficher notification
+    function showNotification(message, type) {
+        const notif = document.getElementById('notification');
+        notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-blue-50', 'border-green-200', 'border-red-200', 'border-blue-200', 'text-green-800', 'text-red-800', 'text-blue-800');
+        
+        if (type === 'success') {
+            notif.classList.add('bg-green-50', 'border-green-200', 'text-green-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>${message}</span>
+            </div>`;
+        } else if (type === 'info') {
+            notif.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">info</span>
+                <span>${message}</span>
+            </div>`;
+        } else {
+            notif.classList.add('bg-red-50', 'border-red-200', 'text-red-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">error</span>
+                <span>${message}</span>
+            </div>`;
+        }
+        
+        setTimeout(() => {
+            notif.classList.add('hidden');
+        }, 4000);
+    }
+    
+    // Échapper les caractères HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    
+    // Formater la date
+    function formatDate(date) {
+        if (!date) return '—';
+        try {
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch {
+            return '—';
+        }
+    }
+    
+    // Écouteur de recherche avec debounce
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        clearTimeout(rechercheTimeout);
+        rechercheTimeout = setTimeout(() => {
+            rechercherMilitants(e.target.value);
+        }, 300);
+    });
+    
+    // Fermer le modal avec Echap
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+    
+    // Charger au démarrage
+    chargerMilitants();
+</script>
 
-    // Charger les militants au démarrage
-    afficherMilitants();
-  </script>
 </body>
-  </html>
+  </html>      
