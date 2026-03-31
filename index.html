@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Militants</title>
+</head>
+<body>
+  <h1>Ajouter un militant</h1>
+
+  <form id="militantForm">
+    <input type="text" id="nom" placeholder="Nom" required>
+    <input type="text" id="prenom" placeholder="Prénom" required>
+    <input type="text" id="telephone" placeholder="Téléphone" required>
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <div id="status"></div>
+
+  <script type="module">
+    // 1️⃣ Import Firebase JS SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    // 2️⃣ Config Firebase (remplace par la tienne)
+    const firebaseConfig = {
+      apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+      authDomain: "militant-eed81.firebaseapp.com",
+      projectId: "militant-eed81",
+      storageBucket: "militant-eed81.appspot.com",
+      messagingSenderId: "705643782444",
+      appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('militantForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nom = document.getElementById('nom').value.trim();
+      const prenom = document.getElementById('prenom').value.trim();
+      const telephone = document.getElementById('telephone').value.trim();
+
+      if (!nom || !prenom || !telephone) {
+        status.textContent = "Tous les champs sont obligatoires.";
+        return;
+      }
+
+      // 3️⃣ Vérifier doublon
+      const q = query(collection(db, "militants"), where("telephone", "==", telephone));
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        status.textContent = "Ce numéro est déjà enregistré !";
+        return;
+      }
+
+      // 4️⃣ Ajouter militant
+      try {
+        await addDoc(collection(db, "militants"), {
+          nom,
+          prenom,
+          telephone,
+          date: new Date()
+        });
+        status.textContent = "Militant ajouté avec succès !";
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Erreur lors de l'ajout.";
+      }
+    });
+  </script>
+</body>
+  </html>
