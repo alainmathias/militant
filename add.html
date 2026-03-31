@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ajouter un militant - Civic Architect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#f8f9ff",
+              "secondary-container": "#fea619",
+              "inverse-on-surface": "#eaf1ff",
+              "tertiary": "#482400",
+              "inverse-surface": "#27313f",
+              "on-background": "#121c2a",
+              "secondary-fixed-dim": "#ffb95f",
+              "surface-bright": "#f8f9ff",
+              "on-primary-container": "#75bfa0",
+              "on-primary": "#ffffff",
+              "outline": "#707975",
+              "on-primary-fixed-variant": "#00513b",
+              "on-primary-fixed": "#002116",
+              "primary-fixed": "#a6f2d1",
+              "on-error": "#ffffff",
+              "surface-variant": "#d9e3f6",
+              "on-error-container": "#93000a",
+              "outline-variant": "#bfc9c4",
+              "on-tertiary-fixed": "#2f1500",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed-dim": "#ffb77d",
+              "on-tertiary": "#ffffff",
+              "secondary": "#855300",
+              "inverse-primary": "#8bd6b6",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#3f4945",
+              "surface-dim": "#d0dbed",
+              "on-tertiary-fixed-variant": "#6e3900",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "surface-container-highest": "#d9e3f6",
+              "on-tertiary-container": "#ff9733",
+              "on-secondary-fixed-variant": "#653e00",
+              "surface-container-low": "#eff4ff",
+              "secondary-fixed": "#ffddb8",
+              "tertiary-fixed": "#ffdcc3",
+              "primary-fixed-dim": "#8bd6b6",
+              "on-secondary-container": "#684000",
+              "primary-container": "#004e38",
+              "on-secondary-fixed": "#2a1700",
+              "surface-tint": "#1b6b51",
+              "surface-container-high": "#dee9fc",
+              "surface": "#f8f9ff",
+              "on-surface": "#121c2a",
+              "tertiary-container": "#693600",
+              "primary": "#003525",
+              "surface-container": "#e6eeff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, .brand-font { font-family: 'Manrope', sans-serif; }
+        
+        /* Animation pour les notifications */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notification-show {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #fea619;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Style pour l'aperçu image */
+        .preview-image {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#003525] backdrop-blur-xl shadow-lg flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<a href="dashboard.html" class="text-emerald-50 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</a>
+<span class="text-xl font-black text-[#fea619] tracking-widest font-manrope">CIVIC ARCHITECT</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
+<span class="material-symbols-outlined text-white">person</span>
+</div>
+</header>
+
+<main class="mt-20 px-4 max-w-lg mx-auto">
+<!-- Header Section -->
+<div class="mb-8">
+<h1 class="text-3xl font-extrabold text-primary tracking-tight mb-2">Ajouter un militant</h1>
+<p class="text-on-surface-variant font-medium">Remplissez les informations pour enregistrer un nouveau membre.</p>
+</div>
+
+<!-- Notification Area -->
+<div id="notification" class="hidden mb-4 rounded-xl p-4 notification-show"></div>
+
+<!-- Form Card -->
+<form id="militantForm" enctype="multipart/form-data">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/15 mb-8">
+<div class="p-6 space-y-6">
+<!-- Photo Capture Section -->
+<div class="space-y-3">
+<label class="block text-xs font-bold uppercase tracking-widest text-primary/70 font-label">Carte d'électeur (Photo)</label>
+<div id="uploadZone" class="relative group cursor-pointer border-2 border-dashed border-outline-variant rounded-xl aspect-video bg-surface-container-low flex flex-col items-center justify-center transition-all hover:border-secondary-container hover:bg-secondary-container/5">
+<span class="material-symbols-outlined text-4xl text-primary mb-2">photo_camera</span>
+<span class="text-sm font-semibold text-primary">Prendre une photo de la carte</span>
+<span class="text-xs text-on-surface-variant mt-1">Format JPG, PNG supporté</span>
+<input type="file" name="carte_image" id="carte_image" accept="image/*" capture="environment" class="hidden">
+</div>
+<div id="previewContainer" class="hidden mt-3">
+<div class="relative inline-block w-full">
+<img id="imagePreview" class="preview-image w-full" alt="Aperçu">
+<button type="button" id="clearImageBtn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 shadow-lg">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Personal Info Grid -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="prenom">Prénom *</label>
+<input class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 px-4 text-on-surface placeholder:text-outline-variant transition-all" id="prenom" name="prenom" placeholder="Jean" type="text" required/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="nom">Nom *</label>
+<input class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 px-4 text-on-surface placeholder:text-outline-variant transition-all" id="nom" name="nom" placeholder="Dupont" type="text" required/>
+</div>
+</div>
+
+<!-- Contact & Location -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="telephone">Téléphone *</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm">call</span>
+<input class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 pl-11 pr-4 text-on-surface placeholder:text-outline-variant transition-all" id="telephone" name="telephone" placeholder="01 99 44 14 85" type="tel" required/>
+</div>
+</div>
+
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="quartier">Quartier</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm">location_on</span>
+<input class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 pl-11 pr-4 text-on-surface placeholder:text-outline-variant transition-all" id="quartier" name="quartier" placeholder="KLOUEKANMEY" type="text"/>
+</div>
+</div>
+
+<!-- Voter Info -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="carte_electeur">Numéro Carte électeur</label>
+<input class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 px-4 text-on-surface placeholder:text-outline-variant transition-all" id="carte_electeur" name="carte_electeur" placeholder="Numéro d'identification" type="text"/>
+</div>
+
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="centre_vote">Centre de vote</label>
+<select class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 px-4 text-on-surface transition-all appearance-none" id="centre_vote" name="centre_vote">
+<option value="">Sélectionner un centre</option>
+<option value="Kl">Kl</option>
+<option value="Ecole Primaire A">Ecole Primaire A</option>
+<option value="Mairie Annexe">Mairie Annexe</option>
+<option value="Centre Culturel">Centre Culturel</option>
+</select>
+</div>
+
+<div class="space-y-1.5 pb-2">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant font-label" for="responsable">Responsable</label>
+<input class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 px-4 text-on-surface placeholder:text-outline-variant transition-all" id="responsable" name="responsable" placeholder="Nom du superviseur" type="text"/>
+</div>
+</div>
+</div>
+
+<!-- Action Button -->
+<button type="submit" id="submitBtn" class="w-full bg-[#fea619] hover:bg-[#e89510] text-primary font-bold py-5 px-6 rounded-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 group mb-10">
+<span class="text-lg">Enregistrer</span>
+<span class="material-symbols-outlined font-bold group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+</main>
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 backdrop-blur-xl rounded-t-[1.5rem] shadow-[0_-8px_24px_-2px_rgba(18,28,42,0.06)]">
+<a class="flex flex-col items-center justify-center text-emerald-900/60 px-4 py-1.5 hover:bg-emerald-50 transition-all active:scale-90" href="dashboard.html">
+<span class="material-symbols-outlined text-2xl mb-1">dashboard</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-emerald-900/60 px-4 py-1.5 hover:bg-emerald-50 transition-all active:scale-90" href="list.html">
+<span class="material-symbols-outlined text-2xl mb-1">groups</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider">Directory</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#fea619] text-[#003525] rounded-xl px-4 py-1.5 transition-all active:scale-90" href="add.html">
+<span class="material-symbols-outlined text-2xl mb-1" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider">Actions</span>
+</a>
+<a class="flex flex-col items-center justify-center text-emerald-900/60 px-4 py-1.5 hover:bg-emerald-50 transition-all active:scale-90" href="#" onclick="showComingSoon()">
+<span class="material-symbols-outlined text-2xl mb-1">person</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        addDoc, 
+        query, 
+        where, 
+        getDocs,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { 
+        getStorage, 
+        ref, 
+        uploadBytes, 
+        getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
+    // Configuration Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+        authDomain: "militant-eed81.firebaseapp.com",
+        projectId: "militant-eed81",
+        storageBucket: "militant-eed81.appspot.com",
+        messagingSenderId: "705643782444",
+        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    
+    let selectedImage = null;
+    
+    // Éléments DOM
+    const uploadZone = document.getElementById('uploadZone');
+    const carteImage = document.getElementById('carte_image');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const clearImageBtn = document.getElementById('clearImageBtn');
+    const form = document.getElementById('militantForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const notification = document.getElementById('notification');
+    
+    // Zone de clic pour l'upload
+    uploadZone.addEventListener('click', () => carteImage.click());
+    
+    // Aperçu de l'image
+    carteImage.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            selectedImage = file;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imagePreview.src = event.target.result;
+                previewContainer.classList.remove('hidden');
+                uploadZone.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Effacer l'aperçu
+    clearImageBtn.addEventListener('click', () => {
+        selectedImage = null;
+        carteImage.value = '';
+        previewContainer.classList.add('hidden');
+        uploadZone.classList.remove('hidden');
+        imagePreview.src = '';
+    });
+    
+    // Afficher notification
+    function showNotification(message, type) {
+        notification.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
+        
+        if (type === 'success') {
+            notification.classList.add('bg-green-50', 'border-green-200', 'text-green-800', 'border');
+            notification.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>${message}</span>
+            </div>`;
+        } else {
+            notification.classList.add('bg-red-50', 'border-red-200', 'text-red-800', 'border');
+            notification.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">error</span>
+                <span>${message}</span>
+            </div>`;
+        }
+        
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 5000);
+    }
+    
+    // Fonction pour les fonctionnalités à venir
+    window.showComingSoon = function() {
+        showNotification('🚀 Fonctionnalité bientôt disponible !', 'info');
+    };
+    
+    // Soumission du formulaire
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const nom = document.getElementById('nom').value.trim();
+        const prenom = document.getElementById('prenom').value.trim();
+        const telephone = document.getElementById('telephone').value.trim();
+        const quartier = document.getElementById('quartier').value;
+        const carteElecteur = document.getElementById('carte_electeur').value;
+        const centreVote = document.getElementById('centre_vote').value;
+        const responsable = document.getElementById('responsable').value;
+        
+        // Validation
+        if (!nom || !prenom || !telephone) {
+            showNotification('Veuillez remplir tous les champs obligatoires (*)', 'error');
+            return;
+        }
+        
+        // Vérifier doublon par téléphone
+        const militantsRef = collection(db, 'militants');
+        const q = query(militantsRef, where('telephone', '==', telephone));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            showNotification('❌ Ce militant existe déjà (téléphone)', 'error');
+            return;
+        }
+        
+        // Désactiver le bouton
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Enregistrement...';
+        
+        try {
+            let imageUrl = null;
+            
+            // Upload de l'image vers Firebase Storage si présente
+            if (selectedImage) {
+                const fileName = `cartes_electeur/${Date.now()}_${selectedImage.name}`;
+                const storageRef = ref(storage, fileName);
+                const snapshot = await uploadBytes(storageRef, selectedImage);
+                imageUrl = await getDownloadURL(snapshot.ref);
+            }
+            
+            // Ajouter à Firestore
+            await addDoc(collection(db, 'militants'), {
+                nom: nom.toUpperCase(),
+                prenom: prenom.toUpperCase(),
+                telephone: telephone,
+                quartier: quartier || '',
+                carte_electeur: carteElecteur || '',
+                centre_vote: centreVote || '',
+                responsable: responsable || '',
+                carte_electeur_image: imageUrl,
+                date_inscription: serverTimestamp(),
+                statut: 'actif',
+                cotisation_a_jour: false,
+                created_at: serverTimestamp()
+            });
+            
+            showNotification('✅ Militant ajouté avec succès', 'success');
+            
+            // Réinitialiser le formulaire
+            form.reset();
+            clearImageBtn.click();
+            
+            // Redirection après 1.5 secondes
+            setTimeout(() => {
+                window.location.href = 'list.html';
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showNotification('Erreur lors de l\'ajout: ' + error.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+</script>
+
+</body>
+  </html>
