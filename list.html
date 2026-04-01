@@ -2,7 +2,7 @@
 <html class="light" lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
 <title>Liste des Militants - Civic Architect</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -46,6 +46,38 @@
         animation: slideDown 0.3s ease-out;
     }
     
+    /* Slider horizontal pour les filtres */
+    .filter-slider {
+        overflow-x: auto;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .filter-slider::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .filter-slider::-webkit-scrollbar-track {
+        background: #e5e7eb;
+        border-radius: 10px;
+    }
+    
+    .filter-slider::-webkit-scrollbar-thumb {
+        background: #fea619;
+        border-radius: 10px;
+    }
+    
+    .filter-chip {
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    
+    .filter-chip.active {
+        background: #fea619;
+        color: #003525;
+        border-color: #fea619;
+    }
+    
     body {
         min-height: max(884px, 100dvh);
     }
@@ -59,7 +91,7 @@
 <a href="dashboard.html" class="text-emerald-50 active:scale-95 transition-transform">
 <span class="material-symbols-outlined">arrow_back</span>
 </a>
-<span class="text-xl font-black text-[#fea619] tracking-widest">LISTE DES MILITANTS </span>
+<span class="text-xl font-black text-[#fea619] tracking-widest">LISTE DES MILITANTS</span>
 </div>
 <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
 <span class="material-symbols-outlined text-white">person</span>
@@ -68,13 +100,27 @@
 
 <main class="mt-20 px-4 max-w-lg mx-auto">
 <!-- Header Section -->
-<div class="mb-6">
+<div class="mb-4">
 <h1 class="text-3xl font-extrabold text-primary tracking-tight mb-2">Liste des militants</h1>
 <p class="text-on-surface-variant font-medium">Gérez et contactez vos militants facilement</p>
 </div>
 
+<!-- Filtres par centre de vote (slider horizontal) -->
+<div class="mb-4">
+    <p class="text-xs font-semibold text-gray-500 mb-2 flex items-center gap-1">
+        <span class="material-symbols-outlined text-sm">how_to_vote</span>
+        Filtrer par centre de vote
+    </p>
+    <div id="filterContainer" class="filter-slider flex gap-2 pb-2">
+        <button data-centre="all" class="filter-chip active px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200 hover:bg-[#fea619] hover:text-white hover:border-[#fea619] transition-all whitespace-nowrap">
+            📋 Tous
+        </button>
+        <div class="flex gap-2" id="dynamicFilters"></div>
+    </div>
+</div>
+
 <!-- Barre de recherche -->
-<div class="mb-6">
+<div class="mb-4">
 <div class="relative">
 <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm">search</span>
 <input type="text" id="searchInput" class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary rounded-lg py-3 pl-11 pr-4 text-on-surface placeholder:text-outline-variant transition-all" placeholder="Rechercher par nom, prénom, téléphone ou quartier..."/>
@@ -99,8 +145,6 @@ Ajouter
 </div>
 </main>
 
-
-
 <!-- Modal pour afficher l'image -->
 <div id="imageModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4" onclick="closeModal()">
     <div class="relative max-w-full max-h-full" onclick="event.stopPropagation()">
@@ -120,8 +164,7 @@ Ajouter
         deleteDoc, 
         doc,
         query, 
-        orderBy,
-        where
+        orderBy
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
     // Configuration Firebase
@@ -138,7 +181,10 @@ Ajouter
     const db = getFirestore(app);
     
     let tousMilitants = [];
+    let centresVote = new Set();
+    let centreActif = 'all';
     let rechercheTimeout;
+    let termeRecherche = '';
 
     // Charger tous les militants
     async function chargerMilitants() {
@@ -147,6 +193,8 @@ Ajouter
             const snapshot = await getDocs(q);
             
             tousMilitants = [];
+            centresVote.clear();
+            
             snapshot.forEach(doc => {
                 const data = doc.data();
                 // Convertir la date Firebase
@@ -159,6 +207,11 @@ Ajouter
                     dateInscription = new Date();
                 }
                 
+                const centre = data.centre_vote || 'Non renseigné';
+                if (centre && centre.trim()) {
+                    centresVote.add(centre);
+                }
+                
                 tousMilitants.push({
                     id: doc.id,
                     nom: data.nom || '',
@@ -166,7 +219,7 @@ Ajouter
                     telephone: data.telephone || '',
                     quartier: data.quartier || '',
                     carte_electeur: data.carte_electeur || '',
-                    centre_vote: data.centre_vote || '',
+                    centre_vote: centre,
                     responsable: data.responsable || '',
                     carte_electeur_image: data.carte_electeur_image || null,
                     date_inscription: dateInscription,
@@ -174,7 +227,29 @@ Ajouter
                 });
             });
             
-            afficherMilitants(tousMilitants);
+            // Trier les centres par ordre alphabétique
+            const centresTries = Array.from(centresVote).sort();
+            
+            // Générer les filtres dynamiques
+            const dynamicFiltersContainer = document.getElementById('dynamicFilters');
+            if (dynamicFiltersContainer) {
+                dynamicFiltersContainer.innerHTML = centresTries.map(centre => `
+                    <button data-centre="${escapeHtml(centre)}" class="filter-chip px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200 hover:bg-[#fea619] hover:text-white hover:border-[#fea619] transition-all whitespace-nowrap">
+                        🗳️ ${escapeHtml(centre)}
+                    </button>
+                `).join('');
+                
+                // Réattacher les événements aux nouveaux boutons
+                document.querySelectorAll('.filter-chip').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const centre = btn.getAttribute('data-centre');
+                        filtrerParCentre(centre);
+                    });
+                });
+            }
+            
+            // Appliquer le filtre actuel
+            filtrerParCentre(centreActif);
             
         } catch (error) {
             console.error("Erreur chargement:", error);
@@ -186,6 +261,48 @@ Ajouter
                 </div>
             `;
         }
+    }
+    
+    // Filtrer par centre de vote
+    function filtrerParCentre(centre) {
+        centreActif = centre;
+        
+        // Mettre à jour l'état actif des filtres
+        document.querySelectorAll('.filter-chip').forEach(btn => {
+            if (btn.getAttribute('data-centre') === centre) {
+                btn.classList.add('active');
+                btn.classList.remove('bg-gray-100', 'text-gray-700', 'border-gray-200');
+                btn.classList.add('bg-[#fea619]', 'text-[#003525]', 'border-[#fea619]');
+            } else {
+                btn.classList.remove('active', 'bg-[#fea619]', 'text-[#003525]', 'border-[#fea619]');
+                btn.classList.add('bg-gray-100', 'text-gray-700', 'border-gray-200');
+            }
+        });
+        
+        // Filtrer les militants
+        let resultats = tousMilitants;
+        
+        if (centre !== 'all') {
+            resultats = tousMilitants.filter(m => m.centre_vote === centre);
+        }
+        
+        // Appliquer la recherche si elle existe
+        if (termeRecherche && termeRecherche.length >= 2) {
+            resultats = filtrerParRecherche(resultats, termeRecherche);
+        }
+        
+        afficherMilitants(resultats);
+    }
+    
+    // Filtrer par recherche
+    function filtrerParRecherche(militants, terme) {
+        const termeLower = terme.toLowerCase();
+        return militants.filter(m => 
+            (m.nom && m.nom.toLowerCase().includes(termeLower)) ||
+            (m.prenom && m.prenom.toLowerCase().includes(termeLower)) ||
+            (m.telephone && m.telephone.includes(terme)) ||
+            (m.quartier && m.quartier.toLowerCase().includes(termeLower))
+        );
     }
     
     // Afficher les militants
@@ -241,17 +358,17 @@ Ajouter
                         </p>
                         ` : ''}
                         
+                        ${m.centre_vote && m.centre_vote !== 'Non renseigné' ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">how_to_vote</span>
+                            <span>${escapeHtml(m.centre_vote)}</span>
+                        </p>
+                        ` : ''}
+                        
                         ${m.carte_electeur ? `
                         <p class="flex items-center gap-2 text-gray-600">
                             <span class="material-symbols-outlined text-sm">id_card</span>
                             <span>${escapeHtml(m.carte_electeur)}</span>
-                        </p>
-                        ` : ''}
-                        
-                        ${m.centre_vote ? `
-                        <p class="flex items-center gap-2 text-gray-600">
-                            <span class="material-symbols-outlined text-sm">how_to_vote</span>
-                            <span>${escapeHtml(m.centre_vote)}</span>
                         </p>
                         ` : ''}
                         
@@ -283,31 +400,12 @@ Ajouter
         `).join('');
     }
     
-    // Recherche
-    function rechercherMilitants(terme) {
-        if (!terme || terme.length < 2) {
-            afficherMilitants(tousMilitants);
-            return;
-        }
-        
-        const termeLower = terme.toLowerCase();
-        const filtres = tousMilitants.filter(m => 
-            (m.nom && m.nom.toLowerCase().includes(termeLower)) ||
-            (m.prenom && m.prenom.toLowerCase().includes(termeLower)) ||
-            (m.telephone && m.telephone.includes(terme)) ||
-            (m.quartier && m.quartier.toLowerCase().includes(termeLower))
-        );
-        
-        afficherMilitants(filtres);
-    }
-    
     // Supprimer un militant
     window.supprimerMilitant = async function(id) {
         if (confirm('Êtes-vous sûr de vouloir supprimer ce militant ?')) {
             try {
                 await deleteDoc(doc(db, "militants", id));
                 showNotification('✅ Militant supprimé avec succès', 'success');
-                // Recharger la liste
                 await chargerMilitants();
             } catch (error) {
                 console.error('Erreur suppression:', error);
@@ -323,7 +421,6 @@ Ajouter
             return;
         }
         
-        // Nettoyer le numéro (garder seulement les chiffres)
         const cleanPhone = phone.replace(/[^0-9]/g, '');
         const message = encodeURIComponent(`Bonjour ${name}, ce message vous est envoyé depuis l'application de gestion des militants.`);
         window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
@@ -342,11 +439,6 @@ Ajouter
         const modal = document.getElementById('imageModal');
         modal.classList.add('hidden');
         document.getElementById('modalImage').src = '';
-    };
-    
-    // Fonction pour les fonctionnalités à venir
-    window.showComingSoon = function() {
-        showNotification('🚀 Fonctionnalité bientôt disponible !', 'info');
     };
     
     // Afficher notification
@@ -406,11 +498,12 @@ Ajouter
         }
     }
     
-    // Écouteur de recherche avec debounce
+    // Gestion de la recherche
     document.getElementById('searchInput').addEventListener('input', (e) => {
         clearTimeout(rechercheTimeout);
+        termeRecherche = e.target.value;
         rechercheTimeout = setTimeout(() => {
-            rechercherMilitants(e.target.value);
+            filtrerParCentre(centreActif);
         }, 300);
     });
     
@@ -426,4 +519,4 @@ Ajouter
 </script>
 
 </body>
-  </html>      
+    </html>
