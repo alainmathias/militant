@@ -104,9 +104,20 @@
         
         .stat-card {
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .stat-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .clickable-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .clickable-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
         .notification-show {
@@ -138,6 +149,16 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .zone-card {
+            background: linear-gradient(135deg, #fef9e6 0%, #fff5e0 100%);
+            border-left: 4px solid #fea619;
+            transition: all 0.3s ease;
+        }
+        .zone-card:hover {
+            border-left-width: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
     </style>
 <style>
     body {
@@ -150,9 +171,14 @@
 <!-- TopAppBar -->
 <header class="fixed top-0 w-full z-50 bg-[#003525] shadow-lg shadow-black/20 flex justify-between items-center px-6 h-16 w-full">
 <div class="flex items-center gap-3">
-      
-<span class="material-symbols-outlined text-[#fea619]" style="font-variation-settings: 'FILL' 1;">reduce_capacity </span>
-<h1 class="text-xl font-black tracking-widest text-[#f8f9ff] uppercase font-manrope">BASE DE DONNÉES </h1>
+      <!-- Logo devant le texte -->
+      <div class="w-10 h-10 rounded-full bg-[#fea619] flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#003525] text-2xl" style="font-variation-settings: 'FILL' 1;">reduce_capacity</span>
+      </div>
+      <div>
+        <h1 class="text-sm font-black tracking-widest text-[#f8f9ff] uppercase font-manrope">BASE DE DONNÉES</h1>
+        <p class="text-[10px] text-emerald-200/70">Union Progressiste le Renouveau</p>
+      </div>
 </div>
 <div class="flex items-center gap-4">
 <button class="text-emerald-200/70 hover:text-[#fea619] transition-colors active:scale-95 duration-150" onclick="showNotification('📢 Nouvelles fonctionnalités disponibles !', 'info')">
@@ -171,15 +197,25 @@
 </div>
 
 <div class="px-6 mt-8 max-w-7xl mx-auto">
-<!-- Hero / Welcome Section -->
-      <div class="bg-surface-container-lowest rounded-xl p-1 stat-card">
-        <div class="flex items-center justify-between">
+<!-- Zone des zones (clickable) -->
+<div class="mb-6 cursor-pointer" onclick="showComingSoon()">
+      <div class="bg-gradient-to-r from-[#004e38] to-[#006b4d] rounded-xl p-4 zone-card shadow-sm">
+        <div class="flex items-center justify-between flex-wrap">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-2xl text-[#fea619]">location_city</span>
             <div>
-                <p class="text-on-surface-variant text-2xl text-sm">Gestion des militants des zones </p>
-                <p class="text-2xl font-black text-primary" id="nouveis">Drabo - Koinvié -Xossevié </p>
+              <p class="text-emerald-100 text-xs uppercase tracking-wider">Gestion des militants des zones</p>
+              <p class="text-xl font-black text-white whitespace-nowrap" id="nouveis">Drabo - Koinvié - Xossèvié</p>
             </div>
-                    </div>
+          </div>
+          <div class="flex items-center gap-1 text-emerald-200/70 text-sm">
+            <span>Voir détails</span>
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+          </div>
+        </div>
       </div>
+    </div>
+
 <section class="relative overflow-hidden rounded-xl mb-8 bg-primary-container p-8 min-h-[220px] flex flex-col justify-end">
 <div class="absolute inset-0 z-0">
 <img class="w-full h-full object-cover opacity-30 mix-blend-overlay" alt="abstract architectural details" src="img/IMG-20260331-WA0063.png"/>
@@ -188,15 +224,15 @@
 <div class="relative z-10">
 <p class="text-on-primary-container font-label text-[13px] uppercase tracking-[0.2em] mb-2">TABLEAU DE BORD DES MILITANTS</p>
 <h2 class="text-display-sm font-headline text-3xl font-extrabold text-white leading-tight">
-Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de ponts </span>.
+Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de ponts</span>.
 </h2>
-<p class="text-emerald-100/70 mt-2 max-w-md">La gestion minutieuse des militants a la base est la force de l'électorat .</p>
+<p class="text-emerald-100/70 mt-2 max-w-md">La gestion minutieuse des militants à la base est la force de l'électorat.</p>
 </div>
 </section>
 
-<!-- Statistiques rapides -->
+<!-- Statistiques rapides (toutes clickables) -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="window.location.href='list.html'">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-on-surface-variant text-sm">Total militants</p>
@@ -205,7 +241,7 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
             <span class="material-symbols-outlined text-4xl text-secondary-container">groups</span>
         </div>
     </div>
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="showNotification('Nouveaux militants du mois', 'info')">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-on-surface-variant text-sm">Nouveaux (30j)</p>
@@ -214,7 +250,7 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
             <span class="material-symbols-outlined text-4xl text-secondary-container">trending_up</span>
         </div>
     </div>
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="showNotification('Voir les quartiers actifs', 'info')">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-on-surface-variant text-sm">Quartier actif</p>
@@ -223,7 +259,7 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
             <span class="material-symbols-outlined text-4xl text-secondary-container">location_on</span>
         </div>
     </div>
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card">
+    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="showNotification('Objectif 1000 militants', 'info')">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-on-surface-variant text-sm">Taux de progression</p>
@@ -234,7 +270,7 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
     </div>
 </div>
 
-<!-- Grid Layout Inspiration -->
+<!-- Grid Layout Inspiration (déjà clickables) -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 <!-- Action Cards -->
 <a href="add.html" class="group flex flex-col justify-between items-start p-6 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all border-none relative overflow-hidden active:scale-95 cursor-pointer">
@@ -296,9 +332,9 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
 <h2 class="font-headline text-2xl font-extrabold text-primary uppercase tracking-tight">Dernières Activités</h2>
 <a href="list.html" class="text-secondary font-bold text-sm flex items-center gap-1 hover:underline">Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
 </div>
-<div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-<!-- Derniers militants ajoutés -->
-<div class="bg-surface-container-low rounded-xl overflow-hidden">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Derniers militants ajoutés (clickable) -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden cursor-pointer clickable-card" onclick="window.location.href='list.html'">
 <div class="bg-primary-container p-4">
 <h3 class="font-bold text-white flex items-center gap-2">
 <span class="material-symbols-outlined">person_add</span>
@@ -310,8 +346,8 @@ Derniers inscrits
 </div>
 </div>
 
-<!-- Carte d'objectif -->
-<div class="bg-primary text-white rounded-xl p-6 flex flex-col justify-between">
+<!-- Carte d'objectif (clickable) -->
+<div class="bg-primary text-white rounded-xl p-6 flex flex-col justify-between cursor-pointer clickable-card" onclick="showNotification('Objectif National : 1000 Militants', 'info')">
 <div>
 <div class="flex items-center gap-2 mb-4">
 <div class="h-2 w-2 rounded-full bg-secondary-container animate-pulse"></div>
@@ -329,8 +365,8 @@ Derniers inscrits
 <a href="add.html" class="mt-8 bg-surface-container-lowest text-primary py-3 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary transition-colors text-center block">Ajouter un militant</a>
 </div>
 
-<!-- Statistiques rapides -->
-<div class="bg-surface-container-low rounded-xl p-6">
+<!-- Statistiques rapides (clickable) -->
+<div class="bg-surface-container-low rounded-xl p-6 cursor-pointer clickable-card" onclick="showComingSoon()">
 <h3 class="font-bold text-primary mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined">analytics</span>
 Statistiques
@@ -566,4 +602,4 @@ Statistiques
 </script>
 
 </body>
-  </html> 
+      </html>
