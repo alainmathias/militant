@@ -232,75 +232,74 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
 
 <!-- Statistiques rapides (toutes clickables) -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="window.location.href='list.html'">
+    <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="window.location.href='list.html'">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-on-surface-variant text-sm">Total militants</p>
-                <p class="text-3xl font-black text-primary" id="totalMilitants">0</p>
+                <p class="text-gray-500 text-sm">Total militants</p>
+                <p class="text-3xl font-black text-[#003525]" id="totalMilitants">0</p>
             </div>
-            <span class="material-symbols-outlined text-4xl text-secondary-container">groups</span>
+            <span class="material-symbols-outlined text-4xl text-[#fea619]">groups</span>
         </div>
     </div>
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="showNotification('Nouveaux militants du mois', 'info')">
+    <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="showNotification('Nouveaux militants du mois', 'info')">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-on-surface-variant text-sm">Nouveaux (30j)</p>
-                <p class="text-3xl font-black text-primary" id="nouveauxMois">0</p>
+                <p class="text-gray-500 text-sm">Nouveaux (30j)</p>
+                <p class="text-3xl font-black text-[#003525]" id="nouveauxMois">0</p>
             </div>
-            <span class="material-symbols-outlined text-4xl text-secondary-container">trending_up</span>
+            <span class="material-symbols-outlined text-4xl text-[#fea619]">trending_up</span>
         </div>
     </div>
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="showNotification('Voir les quartiers actifs', 'info')">
+    <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="showNotification('Voir les quartiers actifs', 'info')">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-on-surface-variant text-sm">Quartier actif</p>
-                <p class="text-base font-bold text-primary truncate" id="topQuartier">—</p>
+                <p class="text-gray-500 text-sm">Quartier actif</p>
+                <p class="text-base font-bold text-[#003525] truncate" id="topQuartier">—</p>
             </div>
-            <span class="material-symbols-outlined text-4xl text-secondary-container">location_on</span>
+            <span class="material-symbols-outlined text-4xl text-[#fea619]">location_on</span>
         </div>
     </div>
-    <div class="bg-surface-container-lowest rounded-xl p-4 stat-card" onclick="showNotification('Objectif 1000 militants', 'info')">
+    <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="showNotification('Objectif 1000 militants', 'info')">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-on-surface-variant text-sm">Taux de progression</p>
-                <p class="text-3xl font-black text-primary" id="tauxProgression">0%</p>
+                <p class="text-gray-500 text-sm">Taux de progression</p>
+                <p class="text-3xl font-black text-[#003525]" id="tauxProgression">0%</p>
             </div>
-            <span class="material-symbols-outlined text-4xl text-secondary-container">target</span>
+            <span class="material-symbols-outlined text-4xl text-[#fea619]">target</span>
         </div>
     </div>
 </div>
-
 
 <!-- Grid Layout Inspiration -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 <!-- Action Cards -->
-<a href="add.html" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-green to-amber-150 rounded-xl shadow-md hover:shadow-xl transition-all border border-amber-200 relative overflow-hidden active:scale-95 cursor-pointer">
-<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-[#fea619]/20 to-[#fea619]/5 flex items-center justify-center text-primary mb-12 group-hover:bg-gradient-to-br group-hover:from-[#fea619] group-hover:to-[#e89510] group-hover:text-white transition-all duration-300">
+<a href="add.html" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-amber-50 rounded-xl shadow-md hover:shadow-xl transition-all border border-amber-200 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center text-[#fea619] mb-12 group-hover:bg-[#fea619] group-hover:text-white transition-all duration-300">
 <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">person_add</span>
 </div>
 <div>
-<h3 class="font-headline font-bold text-xl text-primary leading-none mb-1">Ajouter un militant</h3>
-<p class="text-sm text-on-surface-variant">Enregistrer un nouveau soutien</p>
+<h3 class="font-headline font-bold text-xl text-[#003525] leading-none mb-1">Ajouter un militant</h3>
+<p class="text-sm text-gray-500">Enregistrer un nouveau soutien</p>
 </div>
 <span class="absolute top-6 right-6 text-[#fea619] opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
 <span class="material-symbols-outlined">north_east</span>
 </span>
 </a>
 
-<a href="list.html" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-yellow to-emerald-150 rounded-xl shadow-md hover:shadow-xl transition-all border border-emerald-200 relative overflow-hidden active:scale-95 cursor-pointer">
-<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center text-secondary mb-12 group-hover:bg-gradient-to-br group-hover:from-emerald-600 group-hover:to-emerald-700 group-hover:text-white transition-all duration-300">
+<a href="list.html" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-emerald-50 rounded-xl shadow-md hover:shadow-xl transition-all border border-emerald-200 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 mb-12 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
 <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">groups</span>
 </div>
 <div>
-<h3 class="font-headline font-bold text-xl text-primary leading-none mb-1">Liste des militants</h3>
-<p class="text-sm text-on-surface-variant">Consulter et gérer</p>
+<h3 class="font-headline font-bold text-xl text-[#003525] leading-none mb-1">Liste des militants</h3>
+<p class="text-sm text-gray-500">Consulter et gérer</p>
 </div>
 <span class="absolute top-6 right-6 text-emerald-500 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
 <span class="material-symbols-outlined">north_east</span>
 </span>
 </a>
 
-<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-[#feea19] to-[#eee510] rounded-xl shadow-md hover:shadow-xl transition-all border border-amber-300 relative overflow-hidden active:scale-95 cursor-pointer">
+<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-[#fea619] to-[#e89510] rounded-xl shadow-md hover:shadow-xl transition-all border border-amber-300 relative overflow-hidden active:scale-95 cursor-pointer">
 <div class="h-12 w-12 rounded-lg bg-white/30 flex items-center justify-center text-white mb-12 group-hover:bg-white/40 transition-all duration-300">
 <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
 </div>
@@ -313,29 +312,30 @@ Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de po
 </span>
 </button>
 
-<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-purple-150 rounded-xl shadow-md hover:shadow-xl transition-all border border-purple-200 relative overflow-hidden active:scale-95 cursor-pointer">
-<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center text-primary mb-12 group-hover:bg-gradient-to-br group-hover:from-purple-600 group-hover:to-purple-700 group-hover:text-white transition-all duration-300">
+<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-md hover:shadow-xl transition-all border border-purple-200 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 mb-12 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
 <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">credit_card</span>
 </div>
 <div>
-<h3 class="font-headline font-bold text-xl text-primary leading-none mb-1">Commander une carte</h3>
-<p class="text-sm text-on-surface-variant">Carte de membre officielle</p>
+<h3 class="font-headline font-bold text-xl text-[#003525] leading-none mb-1">Commander une carte</h3>
+<p class="text-sm text-gray-500">Carte de membre officielle</p>
 </div>
 <span class="absolute top-6 right-6 text-purple-500 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
 <span class="material-symbols-outlined">north_east</span>
 </span>
 </button>
-      </div>
+</div>
+
 <!-- Dernières activités -->
 <section class="mt-12">
 <div class="flex justify-between items-end mb-6">
-<h2 class="font-headline text-2xl font-extrabold text-primary uppercase tracking-tight">Dernières Activités</h2>
-<a href="list.html" class="text-secondary font-bold text-sm flex items-center gap-1 hover:underline">Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+<h2 class="font-headline text-2xl font-extrabold text-[#003525] uppercase tracking-tight">Dernières Activités</h2>
+<a href="list.html" class="text-[#fea619] font-bold text-sm flex items-center gap-1 hover:underline">Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <!-- Derniers militants ajoutés (clickable) -->
-<div class="bg-surface-container-low rounded-xl overflow-hidden cursor-pointer clickable-card" onclick="window.location.href='list.html'">
-<div class="bg-primary-container p-4">
+<div class="bg-gray-50 rounded-xl overflow-hidden cursor-pointer clickable-card border border-gray-100" onclick="window.location.href='list.html'">
+<div class="bg-[#003525] p-4">
 <h3 class="font-bold text-white flex items-center gap-2">
 <span class="material-symbols-outlined">person_add</span>
 Derniers inscrits
@@ -347,46 +347,46 @@ Derniers inscrits
 </div>
 
 <!-- Carte d'objectif (clickable) -->
-<div class="bg-primary text-white rounded-xl p-6 flex flex-col justify-between cursor-pointer clickable-card" onclick="showNotification('Objectif National : 1000 Militants', 'info')">
+<div class="bg-[#003525] text-white rounded-xl p-6 flex flex-col justify-between cursor-pointer clickable-card shadow-md" onclick="showNotification('Objectif National : 10000 Militants', 'info')">
 <div>
 <div class="flex items-center gap-2 mb-4">
-<div class="h-2 w-2 rounded-full bg-secondary-container animate-pulse"></div>
+<div class="h-2 w-2 rounded-full bg-[#fea619] animate-pulse"></div>
 <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-200">Objectif 2026</span>
 </div>
-<h4 class="font-headline font-bold text-xl mb-4">Objectif  : 10000 Militants</h4>
-<div class="w-full bg-primary-container h-3 rounded-full overflow-hidden mb-2">
-<div id="progressBar" class="bg-secondary-container h-full rounded-full" style="width: 0%"></div>
+<h4 class="font-headline font-bold text-xl mb-4">Objectif : 10000 Militants</h4>
+<div class="w-full bg-[#1e5a3a] h-3 rounded-full overflow-hidden mb-2">
+<div id="progressBar" class="bg-[#fea619] h-full rounded-full" style="width: 0%"></div>
 </div>
 <div class="flex justify-between text-[11px] font-bold text-emerald-100">
 <span id="progressCurrent">0</span>
 <span id="progressPercent">0%</span>
 </div>
 </div>
-<a href="add.html" class="mt-8 bg-surface-container-lowest text-primary py-3 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary transition-colors text-center block">Ajouter un militant</a>
+<a href="add.html" class="mt-8 bg-white text-[#003525] py-3 rounded-xl font-bold hover:bg-[#fea619] hover:text-white transition-colors text-center block">Ajouter un militant</a>
 </div>
 
 <!-- Statistiques rapides (clickable) -->
-<div class="bg-surface-container-low rounded-xl p-6 cursor-pointer clickable-card" onclick="showComingSoon()">
-<h3 class="font-bold text-primary mb-4 flex items-center gap-2">
+<div class="bg-gray-50 rounded-xl p-6 cursor-pointer clickable-card border border-gray-100" onclick="showComingSoon()">
+<h3 class="font-bold text-[#003525] mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined">analytics</span>
 Statistiques
 </h3>
 <div class="space-y-4">
 <div>
 <div class="flex justify-between text-sm mb-1">
-<span class="text-on-surface-variant">Militants</span>
-<span class="font-bold text-primary" id="statTotal">0</span>
+<span class="text-gray-500">Militants</span>
+<span class="font-bold text-[#003525]" id="statTotal">0</span>
 </div>
-<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-<div id="statBar" class="bg-secondary-container h-full rounded-full" style="width: 0%"></div>
+<div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+<div id="statBar" class="bg-[#fea619] h-full rounded-full" style="width: 0%"></div>
 </div>
 </div>
 <div>
 <div class="flex justify-between text-sm mb-1">
-<span class="text-on-surface-variant">Croissance mensuelle</span>
-<span class="font-bold text-primary" id="statCroissance">0</span>
+<span class="text-gray-500">Croissance mensuelle</span>
+<span class="font-bold text-[#003525]" id="statCroissance">0</span>
 </div>
-<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
 <div id="statCroissanceBar" class="bg-emerald-500 h-full rounded-full" style="width: 0%"></div>
 </div>
 </div>
@@ -396,7 +396,6 @@ Statistiques
 </section>
 </div>
 </main>
-
 
 <!-- Notification flottante -->
 <div id="floatingNotification" class="fixed top-20 right-4 z-50 hidden max-w-sm bg-white rounded-xl shadow-lg p-4 notification-show"></div>
@@ -512,7 +511,7 @@ Statistiques
         document.getElementById('nouveauxMois').textContent = nouveauxMois;
         document.getElementById('topQuartier').textContent = topQuartierData || '—';
         
-        const progression = Math.min(100, Math.round((totalMilitants / 1000) * 100));
+        const progression = Math.min(100, Math.round((totalMilitants / 10000) * 100));
         document.getElementById('tauxProgression').textContent = `${progression}%`;
         
         // Ticker
@@ -526,15 +525,15 @@ Statistiques
         `;
         
         // Barre de progression objectif
-        const progressPercent = (totalMilitants / 1000) * 100;
+        const progressPercent = (totalMilitants / 10000) * 100;
         const percentValue = Math.min(100, progressPercent);
         document.getElementById('progressBar').style.width = `${percentValue}%`;
-        document.getElementById('progressCurrent').textContent = `${totalMilitants.toLocaleString()} / 1 000`;
+        document.getElementById('progressCurrent').textContent = `${totalMilitants.toLocaleString()} / 10 000`;
         document.getElementById('progressPercent').textContent = `${Math.round(percentValue)}%`;
         
         // Statistiques secondaires
         document.getElementById('statTotal').textContent = totalMilitants;
-        document.getElementById('statBar').style.width = `${Math.min(100, (totalMilitants / 1000) * 100)}%`;
+        document.getElementById('statBar').style.width = `${Math.min(100, (totalMilitants / 10000) * 100)}%`;
         document.getElementById('statCroissance').textContent = `+${nouveauxMois}`;
         document.getElementById('statCroissanceBar').style.width = `${Math.min(100, (nouveauxMois / 50) * 100)}%`;
         
@@ -547,16 +546,16 @@ Statistiques
                     dateStr = m.date_inscription.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
                 }
                 return `
-                <div class="flex items-center justify-between py-2 border-b border-outline-variant/20 last:border-0">
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                     <div>
-                        <p class="font-semibold text-primary">${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</p>
-                        <p class="text-xs text-on-surface-variant">${escapeHtml(m.quartier) || 'Quartier non renseigné'}</p>
+                        <p class="font-semibold text-[#003525]">${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</p>
+                        <p class="text-xs text-gray-400">${escapeHtml(m.quartier) || 'Quartier non renseigné'}</p>
                     </div>
-                    <span class="text-xs text-on-surface-variant">${dateStr}</span>
+                    <span class="text-xs text-gray-400">${dateStr}</span>
                 </div>
             `}).join('');
         } else {
-            derniersContainer.innerHTML = '<p class="text-on-surface-variant text-center py-4">Aucun militant enregistré</p>';
+            derniersContainer.innerHTML = '<p class="text-gray-400 text-center py-4">Aucun militant enregistré</p>';
         }
     }
     
@@ -602,4 +601,4 @@ Statistiques
 </script>
 
 </body>
-      </html>
+                                                                                                                </html>
