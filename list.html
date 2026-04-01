@@ -94,7 +94,7 @@
 <span class="text-xl font-black text-[#fea619] tracking-widest">LISTE DES MILITANTS</span>
 </div>
 <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
-<span class="material-symbols-outlined text-white">person</span>
+<img src="img/file_000000003d1871f8bf29e606a536d279.png" class="material-symbols-outlined text-white">
 </div>
 </header>
 
@@ -340,8 +340,9 @@ Ajouter
                             ${m.telephone ? `
                             <button onclick="ouvrirWhatsApp('${m.telephone}', '${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}')" 
                                     class="bg-green-500 hover:bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all active:scale-95">
-                                <span class="material-symbols-outlined text-xl">whatsapp</span>
-                            </button>
+                                <span class="material-symbols-outlined">
+mark_as_unread
+</span>     </button>
                             ` : ''}
                             <button onclick="supprimerMilitant('${m.id}')" 
                                     class="bg-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all active:scale-95">
