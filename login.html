@@ -8,10 +8,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); min-height: 100vh; }
-    .auth-card { background: white; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-    .notification-show { animation: slideDown 0.3s ease-out; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); 
+        min-height: 100vh; 
+    }
+    .auth-card { 
+        background: white; 
+        border-radius: 32px; 
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+    }
+    .notification-show { 
+        animation: slideDown 0.3s ease-out; 
+    }
+    @keyframes slideDown { 
+        from { opacity: 0; transform: translateY(-20px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #fea619;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 </head>
 <body class="flex items-center justify-center p-4">
@@ -34,13 +60,19 @@
         
         <form id="loginForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="jean@exemple.com" required>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nom d'utilisateur</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">person</span>
+                    <input type="text" id="username" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="admin / user" required>
+                </div>
             </div>
             
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Mot de passe</label>
-                <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="••••••••" required>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">lock</span>
+                    <input type="password" id="password" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="••••••••" required>
+                </div>
             </div>
             
             <div class="flex items-center justify-between">
@@ -48,7 +80,7 @@
                     <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-gray-300 text-[#fea619] focus:ring-[#fea619]">
                     <span class="text-sm text-gray-600">Se souvenir de moi</span>
                 </label>
-                <a href="forgot-password.html" class="text-sm text-[#fea619] hover:underline">Mot de passe oublié ?</a>
+                <a href="#" onclick="showNotification('Contactez l\\'administrateur pour réinitialiser votre mot de passe', 'info')" class="text-sm text-[#fea619] hover:underline">Mot de passe oublié ?</a>
             </div>
             
             <button type="submit" id="submitBtn" class="w-full bg-[#fea619] hover:bg-[#e89510] text-[#003525] font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
@@ -61,109 +93,169 @@
             Pas encore de compte ? 
             <a href="register.html" class="text-[#fea619] font-semibold hover:underline">Créer un compte</a>
         </p>
+        
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-center text-xs text-gray-400">
+                🔐 Comptes de démonstration :<br>
+                <span class="font-semibold">admin</span> / admin123 | <span class="font-semibold">user</span> / user123
+            </p>
+        </div>
     </div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
-        authDomain: "militant-eed81.firebaseapp.com",
-        projectId: "militant-eed81",
-        storageBucket: "militant-eed81.appspot.com",
-        messagingSenderId: "705643782444",
-        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
+    // ============================================
+    // VARIABLES DES UTILISATEURS (identifiants stockés)
+    // ============================================
+    const USERS = [
+        { username: "admin", password: "admin123", role: "administrateur", fullName: "Administrateur Principal", phone: "0102030405" },
+        { username: "user", password: "user123", role: "lecteur", fullName: "Utilisateur Standard", phone: "0607080910" },
+        { username: "jean", password: "jean123", role: "lecteur", fullName: "Jean Dupont", phone: "0199441485" },
+        { username: "marie", password: "marie123", role: "administrateur", fullName: "Marie Koné", phone: "0199441486" }
+    ];
+    
+    // ============================================
+    // Code de la page
+    // ============================================
     const form = document.getElementById('loginForm');
     const submitBtn = document.getElementById('submitBtn');
     const notification = document.getElementById('notification');
-
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const rememberMe = document.getElementById('rememberMe');
+    
     // Vérifier si déjà connecté
     const savedUser = sessionStorage.getItem('user');
     if (savedUser) {
-        window.location.href = 'dashboard.html';
+        try {
+            const user = JSON.parse(savedUser);
+            if (user && user.username) {
+                window.location.href = 'dashboard.html';
+            }
+        } catch(e) {}
     }
-
+    
+    // Vérifier si "Se souvenir de moi" était coché
+    const savedUsername = localStorage.getItem('savedUsername');
+    if (savedUsername) {
+        usernameInput.value = savedUsername;
+        rememberMe.checked = true;
+    }
+    
     function showNotification(message, type) {
-        notification.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
-        notification.classList.add(type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800', 'border');
-        notification.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'error'}</span><span>${message}</span></div>`;
-        setTimeout(() => notification.classList.add('hidden'), 5000);
+        const notif = notification;
+        notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-blue-50', 'border-green-200', 'border-red-200', 'border-blue-200', 'text-green-800', 'text-red-800', 'text-blue-800');
+        
+        if (type === 'success') {
+            notif.classList.add('bg-green-50', 'border', 'border-green-200', 'text-green-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>${message}</span>
+            </div>`;
+        } else if (type === 'info') {
+            notif.classList.add('bg-blue-50', 'border', 'border-blue-200', 'text-blue-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">info</span>
+                <span>${message}</span>
+            </div>`;
+        } else {
+            notif.classList.add('bg-red-50', 'border', 'border-red-200', 'text-red-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">error</span>
+                <span>${message}</span>
+            </div>`;
+        }
+        
+        notif.classList.remove('hidden');
+        
+        setTimeout(() => {
+            notif.classList.add('hidden');
+        }, 4000);
     }
-
+    
+    // Fonction pour vérifier les identifiants
+    function verifierIdentifiants(username, password) {
+        // Rechercher l'utilisateur dans le tableau
+        const user = USERS.find(u => u.username.toLowerCase() === username.toLowerCase());
+        
+        if (!user) {
+            return { success: false, message: "Nom d'utilisateur incorrect" };
+        }
+        
+        if (user.password !== password) {
+            return { success: false, message: "Mot de passe incorrect" };
+        }
+        
+        return { 
+            success: true, 
+            user: {
+                username: user.username,
+                fullName: user.fullName,
+                role: user.role,
+                phone: user.phone
+            }
+        };
+    }
+    
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const rememberMe = document.getElementById('rememberMe').checked;
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        
+        if (!username || !password) {
+            showNotification('Veuillez entrer votre nom d\'utilisateur et mot de passe', 'error');
+            return;
+        }
         
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="loading-spinner"></span> Connexion...';
         
-        try {
-            // Définir la persistance
-            await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        // Simuler un délai pour l'effet de chargement
+        setTimeout(() => {
+            const resultat = verifierIdentifiants(username, password);
             
-            // Connexion
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            
-            // Récupérer les infos utilisateur depuis Firestore
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const userData = userDoc.data();
-            
-            // Stocker les infos en session
-            sessionStorage.setItem('user', JSON.stringify({
-                uid: user.uid,
-                fullName: userData?.fullName || user.displayName || email,
-                email: email,
-                role: userData?.role || 'lecteur',
-                phone: userData?.phone || ''
-            }));
-            
-            showNotification('✅ Connexion réussie ! Redirection...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
-            
-        } catch (error) {
-            console.error(error);
-            let message = 'Erreur de connexion';
-            if (error.code === 'auth/user-not-found') message = 'Aucun compte associé à cet email';
-            if (error.code === 'auth/wrong-password') message = 'Mot de passe incorrect';
-            if (error.code === 'auth/invalid-email') message = 'Email invalide';
-            if (error.code === 'auth/user-disabled') message = 'Compte désactivé';
-            showNotification(message, 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span class="material-symbols-outlined">login</span> Se connecter';
-        }
+            if (resultat.success) {
+                // Sauvegarder les infos utilisateur
+                const userData = {
+                    username: resultat.user.username,
+                    fullName: resultat.user.fullName,
+                    role: resultat.user.role,
+                    phone: resultat.user.phone,
+                    loginTime: new Date().toISOString()
+                };
+                
+                sessionStorage.setItem('user', JSON.stringify(userData));
+                
+                // Sauvegarder le nom d'utilisateur si "Se souvenir de moi" est coché
+                if (rememberMe.checked) {
+                    localStorage.setItem('savedUsername', username);
+                } else {
+                    localStorage.removeItem('savedUsername');
+                }
+                
+                showNotification(`✅ Bienvenue ${resultat.user.fullName} ! Redirection...`, 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
+            } else {
+                showNotification(resultat.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined">login</span> Se connecter';
+            }
+        }, 800);
+    });
+    
+    // Permettre la connexion avec la touche Entrée
+    usernameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
+    });
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
     });
 </script>
 
-<style>
-    .loading-spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #f3f3f3;
-        border-top: 2px solid #fea619;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
 </body>
-</html>
+    </html>
