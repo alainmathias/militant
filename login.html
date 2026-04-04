@@ -97,7 +97,10 @@
         <div class="mt-4 pt-4 border-t border-gray-200">
             <p class="text-center text-xs text-gray-400">
                 🔐 Comptes de démonstration :<br>
-                <span class="font-semibold">admin</span> / admin123 | <span class="font-semibold">user</span> / user123
+                <span class="font-semibold">admin</span> / admin123 | 
+                <span class="font-semibold">user</span> / user123 | 
+                <span class="font-semibold">jean</span> / jean123 | 
+                <span class="font-semibold">marie</span> / marie123
             </p>
         </div>
     </div>
@@ -105,17 +108,17 @@
 
 <script type="module">
     // ============================================
-    // VARIABLES DES UTILISATEURS (identifiants stockés)
+    // VARIABLES DES UTILISATEURS (sans rôle)
     // ============================================
     const USERS = [
-        { username: "admin", password: "admin123", role: "administrateur", fullName: "Administrateur Principal", phone: "0102030405" },
-        { username: "user", password: "user123", role: "lecteur", fullName: "Utilisateur Standard", phone: "0607080910" },
-        { username: "jean", password: "jean123", role: "lecteur", fullName: "Jean Dupont", phone: "0199441485" },
-        { username: "marie", password: "marie123", role: "administrateur", fullName: "Marie Koné", phone: "0199441486" }
+        { username: "admin", password: "admin123", fullName: "Administrateur Principal", redirectPage: "dashboard_admin.html" },
+        { username: "user", password: "user123", fullName: "Utilisateur Standard", redirectPage: "dashboard_user.html" },
+        { username: "jean", password: "jean123", fullName: "Jean Dupont", redirectPage: "dashboard_user.html" },
+        { username: "marie", password: "marie123", fullName: "Marie Koné", redirectPage: "dashboard_admin.html" }
     ];
     
     // ============================================
-    // Code de la page
+    // CODE DE LA PAGE
     // ============================================
     const form = document.getElementById('loginForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -130,7 +133,7 @@
         try {
             const user = JSON.parse(savedUser);
             if (user && user.username) {
-                window.location.href = 'dashboard.html';
+                window.location.href = user.redirectPage || 'dashboard.html';
             }
         } catch(e) {}
     }
@@ -175,7 +178,6 @@
     
     // Fonction pour vérifier les identifiants
     function verifierIdentifiants(username, password) {
-        // Rechercher l'utilisateur dans le tableau
         const user = USERS.find(u => u.username.toLowerCase() === username.toLowerCase());
         
         if (!user) {
@@ -191,10 +193,14 @@
             user: {
                 username: user.username,
                 fullName: user.fullName,
-                role: user.role,
-                phone: user.phone
+                redirectPage: user.redirectPage
             }
         };
+    }
+    
+    // Message de bienvenue personnalisé
+    function getWelcomeMessage(fullName) {
+        return `✅ Bienvenue ${fullName} ! Connexion réussie.`;
     }
     
     form.addEventListener('submit', async (e) => {
@@ -211,17 +217,18 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="loading-spinner"></span> Connexion...';
         
-        // Simuler un délai pour l'effet de chargement
         setTimeout(() => {
             const resultat = verifierIdentifiants(username, password);
             
             if (resultat.success) {
+                const redirectPage = resultat.user.redirectPage;
+                const welcomeMessage = getWelcomeMessage(resultat.user.fullName);
+                
                 // Sauvegarder les infos utilisateur
                 const userData = {
                     username: resultat.user.username,
                     fullName: resultat.user.fullName,
-                    role: resultat.user.role,
-                    phone: resultat.user.phone,
+                    redirectPage: redirectPage,
                     loginTime: new Date().toISOString()
                 };
                 
@@ -234,10 +241,10 @@
                     localStorage.removeItem('savedUsername');
                 }
                 
-                showNotification(`✅ Bienvenue ${resultat.user.fullName} ! Redirection...`, 'success');
+                showNotification(welcomeMessage, 'success');
                 
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = redirectPage;
                 }, 1500);
                 
             } else {
@@ -258,4 +265,4 @@
 </script>
 
 </body>
-    </html>
+</html>
