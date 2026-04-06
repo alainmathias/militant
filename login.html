@@ -63,7 +63,7 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nom d'utilisateur</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">person</span>
-                    <input type="text" id="username" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="admin / user" required>
+                    <input type="text" id="username" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="Votre nom d'utilisateur" required>
                 </div>
             </div>
             
@@ -93,29 +93,26 @@
             Pas encore de compte ? 
             <a href="register.html" class="text-[#fea619] font-semibold hover:underline">Créer un compte</a>
         </p>
-        
-        <div class="mt-4 pt-4 border-t border-gray-200">
-            <p class="text-center text-xs text-gray-400">
-                🔐 Comptes de démonstration :<br>
-                <span class="font-semibold">admin</span> / admin123 | 
-                <span class="font-semibold">user</span> / user123 | 
-                <span class="font-semibold">jean</span> / jean123 | 
-                <span class="font-semibold">marie</span> / marie123
-            </p>
-        </div>
     </div>
 </div>
 
 <script type="module">
-    // ============================================
-    // VARIABLES DES UTILISATEURS (sans rôle)
-    // ============================================
-    const USERS = [
-        { username: "admin", password: "admin123", fullName: "Administrateur Principal", redirectPage: "dashboard_admin.html" },
-        { username: "user", password: "user123", fullName: "Utilisateur Standard", redirectPage: "dashboard_user.html" },
-        { username: "jean", password: "jean123", fullName: "Jean Dupont", redirectPage: "dashboard_user.html" },
-        { username: "marie", password: "marie123", fullName: "Marie Koné", redirectPage: "dashboard_admin.html" }
-    ];
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+        authDomain: "militant-eed81.firebaseapp.com",
+        projectId: "militant-eed81",
+        storageBucket: "militant-eed81.appspot.com",
+        messagingSenderId: "705643782444",
+        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
     
     // ============================================
     // CODE DE LA PAGE
@@ -176,30 +173,70 @@
         }, 4000);
     }
     
-    // Fonction pour vérifier les identifiants
-    function verifierIdentifiants(username, password) {
-        const user = USERS.find(u => u.username.toLowerCase() === username.toLowerCase());
-        
-        if (!user) {
-            return { success: false, message: "Nom d'utilisateur incorrect" };
-        }
-        
-        if (user.password !== password) {
-            return { success: false, message: "Mot de passe incorrect" };
-        }
-        
-        return { 
-            success: true, 
-            user: {
-                username: user.username,
-                fullName: user.fullName,
-                redirectPage: user.redirectPage
+    // Fonction pour vérifier les identifiants dans Firebase
+    async function verifierIdentifiants(username, password) {
+        try {
+            // 1. Chercher l'utilisateur dans Firestore par son username
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", username));
+            const querySnapshot = await getDocs(q);
+            
+            if (querySnapshot.empty) {
+                return { success: false, message: "Nom d'utilisateur incorrect" };
             }
-        };
+            
+            // Récupérer les données de l'utilisateur
+            let userData = null;
+            let userId = null;
+            querySnapshot.forEach(doc => {
+                userData = doc.data();
+                userId = doc.id;
+            });
+            
+            // 2. Tenter la connexion avec Firebase Auth (email fictif)
+            const fakeEmail = `${username}@militant.local`;
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, fakeEmail, password);
+                const firebaseUser = userCredential.user;
+                
+                // Déterminer la page de redirection selon le rôle
+                let redirectPage = "dashboard_user.html";
+                if (userData.role === "administrateur") {
+                    redirectPage = "dashboard_admin.html";
+                }
+                
+                return { 
+                    success: true, 
+                    user: {
+                        uid: userId,
+                        username: userData.username,
+                        fullName: userData.fullName,
+                        role: userData.role,
+                        phone: userData.phone || '',
+                        redirectPage: redirectPage
+                    }
+                };
+                
+            } catch (authError) {
+                console.error("Auth error:", authError);
+                if (authError.code === 'auth/wrong-password') {
+                    return { success: false, message: "Mot de passe incorrect" };
+                }
+                return { success: false, message: "Erreur d'authentification" };
+            }
+            
+        } catch (error) {
+            console.error("Erreur:", error);
+            return { success: false, message: "Erreur de connexion à la base de données" };
+        }
     }
     
     // Message de bienvenue personnalisé
-    function getWelcomeMessage(fullName) {
+    function getWelcomeMessage(fullName, role) {
+        if (role === "administrateur") {
+            return `✅ Bienvenue ${fullName} (Administrateur) ! Connexion réussie.`;
+        }
         return `✅ Bienvenue ${fullName} ! Connexion réussie.`;
     }
     
@@ -217,42 +254,43 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="loading-spinner"></span> Connexion...';
         
-        setTimeout(() => {
-            const resultat = verifierIdentifiants(username, password);
+        const resultat = await verifierIdentifiants(username, password);
+        
+        if (resultat.success) {
+            const redirectPage = resultat.user.redirectPage;
+            const welcomeMessage = getWelcomeMessage(resultat.user.fullName, resultat.user.role);
             
-            if (resultat.success) {
-                const redirectPage = resultat.user.redirectPage;
-                const welcomeMessage = getWelcomeMessage(resultat.user.fullName);
-                
-                // Sauvegarder les infos utilisateur
-                const userData = {
-                    username: resultat.user.username,
-                    fullName: resultat.user.fullName,
-                    redirectPage: redirectPage,
-                    loginTime: new Date().toISOString()
-                };
-                
-                sessionStorage.setItem('user', JSON.stringify(userData));
-                
-                // Sauvegarder le nom d'utilisateur si "Se souvenir de moi" est coché
-                if (rememberMe.checked) {
-                    localStorage.setItem('savedUsername', username);
-                } else {
-                    localStorage.removeItem('savedUsername');
-                }
-                
-                showNotification(welcomeMessage, 'success');
-                
-                setTimeout(() => {
-                    window.location.href = redirectPage;
-                }, 1500);
-                
+            // Sauvegarder les infos utilisateur
+            const userData = {
+                uid: resultat.user.uid,
+                username: resultat.user.username,
+                fullName: resultat.user.fullName,
+                role: resultat.user.role,
+                phone: resultat.user.phone,
+                redirectPage: redirectPage,
+                loginTime: new Date().toISOString()
+            };
+            
+            sessionStorage.setItem('user', JSON.stringify(userData));
+            
+            // Sauvegarder le nom d'utilisateur si "Se souvenir de moi" est coché
+            if (rememberMe.checked) {
+                localStorage.setItem('savedUsername', username);
             } else {
-                showNotification(resultat.message, 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="material-symbols-outlined">login</span> Se connecter';
+                localStorage.removeItem('savedUsername');
             }
-        }, 800);
+            
+            showNotification(welcomeMessage, 'success');
+            
+            setTimeout(() => {
+                window.location.href = redirectPage;
+            }, 1500);
+            
+        } else {
+            showNotification(resultat.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined">login</span> Se connecter';
+        }
     });
     
     // Permettre la connexion avec la touche Entrée
@@ -265,4 +303,4 @@
 </script>
 
 </body>
-</html>
+    </html>
