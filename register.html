@@ -43,6 +43,12 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    
+    /* Style pour le message admin */
+    .admin-note {
+        background: #fef3c7;
+        border-left: 4px solid #fea619;
+    }
 </style>
 </head>
 <body class="flex items-center justify-center p-4">
@@ -59,7 +65,8 @@
 
     <!-- Carte d'inscription -->
     <div class="auth-card p-8">
-        <h2 class="text-2xl font-bold text-[#003525] mb-6 text-center">Créer un compte</h2>
+        <h2 class="text-2xl font-bold text-[#003525] mb-2 text-center">Créer un compte</h2>
+        <p class="text-center text-xs text-gray-400 mb-6">⚠️ Réservé à l'administrateur</p>
         
         <div id="notification" class="hidden mb-4 rounded-xl p-3 text-sm notification-show"></div>
         
@@ -70,24 +77,37 @@
             </div>
             
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Email *</label>
-                <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="jean@exemple.com" required>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nom d'utilisateur *</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">person</span>
+                    <input type="text" id="username" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="jean.dupont" required>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Utilisé pour la connexion (unique)</p>
             </div>
             
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone</label>
-                <input type="tel" id="phone" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="01 99 44 14 85">
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">call</span>
+                    <input type="tel" id="phone" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="01 99 44 14 85">
+                </div>
             </div>
             
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Mot de passe *</label>
-                <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="••••••••" required>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">lock</span>
+                    <input type="password" id="password" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="••••••••" required>
+                </div>
                 <p class="text-xs text-gray-400 mt-1">Minimum 6 caractères</p>
             </div>
             
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Confirmer le mot de passe *</label>
-                <input type="password" id="confirmPassword" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="••••••••" required>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">lock</span>
+                    <input type="password" id="confirmPassword" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="••••••••" required>
+                </div>
             </div>
             
             <div class="flex items-center gap-2">
@@ -106,21 +126,27 @@
             
             <button type="submit" id="submitBtn" class="w-full bg-[#fea619] hover:bg-[#e89510] text-[#003525] font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 mt-4">
                 <span class="material-symbols-outlined">person_add</span>
-                S'inscrire
+                Créer le compte
             </button>
         </form>
         
-        <p class="text-center text-sm text-gray-500 mt-6">
-            Déjà un compte ? 
-            <a href="login.html" class="text-[#fea619] font-semibold hover:underline">Se connecter</a>
+        <div class="mt-6 p-3 admin-note rounded-lg">
+            <p class="text-xs text-amber-800 flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">info</span>
+                🔐 Seul l'administrateur peut créer des comptes. Les utilisateurs pourront ensuite se connecter avec leur nom d'utilisateur et mot de passe.
+            </p>
+        </div>
+        
+        <p class="text-center text-sm text-gray-500 mt-4">
+            <a href="login_simple.html" class="text-[#fea619] font-semibold hover:underline">← Retour à la connexion</a>
         </p>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
@@ -145,6 +171,32 @@
     const codeFieldContainer = document.getElementById('codeFieldContainer');
     const adminCodeInput = document.getElementById('adminCode');
 
+    // Vérifier que seul un admin connecté peut accéder à cette page
+    const currentUser = sessionStorage.getItem('user');
+    let isCurrentUserAdmin = false;
+    
+    async function verifierAccesAdmin() {
+        if (currentUser) {
+            try {
+                const userData = JSON.parse(currentUser);
+                // Vérifier dans Firestore si l'utilisateur connecté est admin
+                const userDoc = await getDoc(doc(db, "users", userData.uid));
+                if (userDoc.exists() && userDoc.data().role === 'administrateur') {
+                    isCurrentUserAdmin = true;
+                } else {
+                    // Rediriger si non admin
+                    window.location.href = 'dashboard_user.html';
+                }
+            } catch(e) {
+                window.location.href = 'login_simple.html';
+            }
+        } else {
+            window.location.href = 'login_simple.html';
+        }
+    }
+    
+    verifierAccesAdmin();
+
     // Afficher/masquer le champ code d'autorisation
     isAdminCheckbox.addEventListener('change', function() {
         if (this.checked) {
@@ -161,7 +213,6 @@
 
     function showNotification(message, type) {
         const notif = notification;
-        // Reset classes
         notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
         
         if (type === 'success') {
@@ -189,7 +240,7 @@
         e.preventDefault();
         
         const fullName = document.getElementById('fullName').value.trim();
-        const email = document.getElementById('email').value.trim();
+        const username = document.getElementById('username').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
@@ -197,7 +248,7 @@
         const adminCode = adminCodeInput.value.trim();
         
         // Validation
-        if (!fullName || !email || !password) {
+        if (!fullName || !username || !password) {
             showNotification('Veuillez remplir tous les champs obligatoires (*)', 'error');
             return;
         }
@@ -226,62 +277,62 @@
         }
         
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading-spinner"></span> Inscription...';
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Création du compte...';
         
         try {
-            // Création utilisateur
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // Créer un email fictif à partir du username (pour Firebase Auth)
+            const fakeEmail = `${username}@militant.local`;
+            
+            // Création utilisateur Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, fakeEmail, password);
             const user = userCredential.user;
             
             await updateProfile(user, { displayName: fullName });
             
             const userRole = isAdmin ? 'administrateur' : 'lecteur';
             
+            // Enregistrer dans Firestore avec le vrai username
             await setDoc(doc(db, "users", user.uid), {
                 fullName: fullName,
-                email: email,
+                username: username,  // Nom d'utilisateur réel pour la connexion
+                email: fakeEmail,
                 phone: phone || '',
                 role: userRole,
                 createdAt: new Date(),
                 isActive: true
             });
             
-            sessionStorage.setItem('user', JSON.stringify({
-                uid: user.uid,
-                fullName: fullName,
-                email: email,
-                role: userRole,
-                phone: phone || ''
-            }));
+            showNotification(`Compte ${userRole} créé avec succès !`, 'success');
             
-            showNotification(`Compte ${userRole} créé avec succès ! Redirection...`, 'success');
+            // Réinitialiser le formulaire
+            form.reset();
+            codeFieldContainer.classList.remove('code-field-visible');
+            codeFieldContainer.classList.add('code-field-hidden');
+            isAdminCheckbox.checked = false;
             
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Créer le compte';
             
         } catch (error) {
             console.error('Erreur détaillée:', error);
             
-            let message = 'Erreur lors de l\'inscription';
+            let message = 'Erreur lors de la création du compte';
             
             if (error.code === 'auth/email-already-in-use') {
-                message = 'Cet email est déjà utilisé';
+                message = 'Ce nom d\'utilisateur est déjà utilisé';
             } else if (error.code === 'auth/invalid-email') {
-                message = 'Email invalide';
+                message = 'Nom d\'utilisateur invalide';
             } else if (error.code === 'auth/weak-password') {
                 message = 'Mot de passe trop faible (minimum 6 caractères)';
             } else if (error.code === 'auth/configuration-not-found') {
-                message = 'Erreur de configuration Firebase. Vérifiez que l\'authentification est activée dans la console Firebase.';
+                message = 'Erreur de configuration Firebase. Vérifiez que l\'authentification est activée.';
             } else if (error.code === 'auth/network-request-failed') {
                 message = 'Erreur réseau. Vérifiez votre connexion internet.';
-            } else {
-                message = `Erreur: ${error.message || error.code || 'Inconnue'}`;
             }
             
             showNotification(message, 'error');
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span class="material-symbols-outlined">person_add</span> S\'inscrire';
+            submitBtn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Créer le compte';
         }
     });
 </script>
