@@ -13,7 +13,6 @@
     .notification-show { animation: slideDown 0.3s ease-out; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* Animation pour le champ code */
     .code-field-hidden {
         opacity: 0;
         max-height: 0;
@@ -25,9 +24,24 @@
     
     .code-field-visible {
         opacity: 1;
-        max-height: 100px;
+        max-height: 120px;
         transition: all 0.3s ease-in;
         margin-bottom: 1rem;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #fea619;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 </head>
@@ -121,8 +135,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // 🔐 CODE D'AUTORISATION ADMINISTRATEUR (à modifier selon vos besoins)
-    const ADMIN_AUTH_CODE = "ADMIN2026";  // Code secret pour créer un compte admin
+    // 🔐 CODE D'AUTORISATION ADMINISTRATEUR
+    const ADMIN_AUTH_CODE = "ADMIN2026";
     
     const form = document.getElementById('registerForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -131,7 +145,7 @@
     const codeFieldContainer = document.getElementById('codeFieldContainer');
     const adminCodeInput = document.getElementById('adminCode');
 
-    // Afficher/masquer le champ code d'autorisation selon la sélection du rôle
+    // Afficher/masquer le champ code d'autorisation
     isAdminCheckbox.addEventListener('change', function() {
         if (this.checked) {
             codeFieldContainer.classList.remove('code-field-hidden');
@@ -141,15 +155,34 @@
             codeFieldContainer.classList.remove('code-field-visible');
             codeFieldContainer.classList.add('code-field-hidden');
             adminCodeInput.required = false;
-            adminCodeInput.value = ''; // Vider le champ
+            adminCodeInput.value = '';
         }
     });
 
     function showNotification(message, type) {
-        notification.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
-        notification.classList.add(type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800', 'border');
-        notification.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'error'}</span><span>${message}</span></div>`;
-        setTimeout(() => notification.classList.add('hidden'), 5000);
+        const notif = notification;
+        // Reset classes
+        notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
+        
+        if (type === 'success') {
+            notif.classList.add('bg-green-50', 'border', 'border-green-200', 'text-green-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>${message}</span>
+            </div>`;
+        } else {
+            notif.classList.add('bg-red-50', 'border', 'border-red-200', 'text-red-800');
+            notif.innerHTML = `<div class="flex items-center gap-2">
+                <span class="material-symbols-outlined">error</span>
+                <span>${message}</span>
+            </div>`;
+        }
+        
+        notif.classList.remove('hidden');
+        
+        setTimeout(() => {
+            notif.classList.add('hidden');
+        }, 5000);
     }
 
     form.addEventListener('submit', async (e) => {
@@ -163,13 +196,12 @@
         const isAdmin = isAdminCheckbox.checked;
         const adminCode = adminCodeInput.value.trim();
         
-        // Validation des champs obligatoires
+        // Validation
         if (!fullName || !email || !password) {
             showNotification('Veuillez remplir tous les champs obligatoires (*)', 'error');
             return;
         }
         
-        // Vérification des mots de passe
         if (password !== confirmPassword) {
             showNotification('Les mots de passe ne correspondent pas', 'error');
             return;
@@ -180,7 +212,7 @@
             return;
         }
         
-        // 🔐 Vérification du code d'autorisation pour le rôle administrateur
+        // Vérification du code admin
         if (isAdmin) {
             if (!adminCode) {
                 showNotification('Veuillez entrer le code d\'autorisation administrateur', 'error');
@@ -188,7 +220,7 @@
             }
             
             if (adminCode !== ADMIN_AUTH_CODE) {
-                showNotification('❌ Code d\'autorisation incorrect. Vous ne pouvez pas créer un compte administrateur.', 'error');
+                showNotification('Code d\'autorisation incorrect. Vous ne pouvez pas créer un compte administrateur.', 'error');
                 return;
             }
         }
@@ -197,17 +229,14 @@
         submitBtn.innerHTML = '<span class="loading-spinner"></span> Inscription...';
         
         try {
-            // Créer l'utilisateur dans Firebase Auth
+            // Création utilisateur
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            // Mettre à jour le profil
             await updateProfile(user, { displayName: fullName });
             
-            // Déterminer le rôle
             const userRole = isAdmin ? 'administrateur' : 'lecteur';
             
-            // Enregistrer les infos supplémentaires dans Firestore
             await setDoc(doc(db, "users", user.uid), {
                 fullName: fullName,
                 email: email,
@@ -217,10 +246,6 @@
                 isActive: true
             });
             
-            const roleMessage = isAdmin ? ' (compte administrateur)' : '';
-            showNotification(`✅ Compte ${userRole} créé avec succès${roleMessage} ! Redirection...`, 'success');
-            
-            // Stocker les infos en session
             sessionStorage.setItem('user', JSON.stringify({
                 uid: user.uid,
                 fullName: fullName,
@@ -229,16 +254,31 @@
                 phone: phone || ''
             }));
             
+            showNotification(`Compte ${userRole} créé avec succès ! Redirection...`, 'success');
+            
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 2000);
             
         } catch (error) {
-            console.error(error);
+            console.error('Erreur détaillée:', error);
+            
             let message = 'Erreur lors de l\'inscription';
-            if (error.code === 'auth/email-already-in-use') message = 'Cet email est déjà utilisé';
-            if (error.code === 'auth/invalid-email') message = 'Email invalide';
-            if (error.code === 'auth/weak-password') message = 'Mot de passe trop faible';
+            
+            if (error.code === 'auth/email-already-in-use') {
+                message = 'Cet email est déjà utilisé';
+            } else if (error.code === 'auth/invalid-email') {
+                message = 'Email invalide';
+            } else if (error.code === 'auth/weak-password') {
+                message = 'Mot de passe trop faible (minimum 6 caractères)';
+            } else if (error.code === 'auth/configuration-not-found') {
+                message = 'Erreur de configuration Firebase. Vérifiez que l\'authentification est activée dans la console Firebase.';
+            } else if (error.code === 'auth/network-request-failed') {
+                message = 'Erreur réseau. Vérifiez votre connexion internet.';
+            } else {
+                message = `Erreur: ${error.message || error.code || 'Inconnue'}`;
+            }
+            
             showNotification(message, 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<span class="material-symbols-outlined">person_add</span> S\'inscrire';
@@ -246,36 +286,5 @@
     });
 </script>
 
-<style>
-    .loading-spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #f3f3f3;
-        border-top: 2px solid #fea619;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .code-field-hidden {
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-        transition: all 0.3s ease-out;
-        margin: 0;
-        padding: 0;
-    }
-    
-    .code-field-visible {
-        opacity: 1;
-        max-height: 120px;
-        transition: all 0.3s ease-in;
-        margin-bottom: 1rem;
-    }
-</style>
 </body>
-    </html>
+                    </html>
