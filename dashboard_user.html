@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mon Dashboard - Base de données militants</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    body { font-family: 'Inter', sans-serif; background: #f8f9ff; min-height: 100vh; }
+    .stat-card { transition: all 0.3s ease; cursor: pointer; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+    .notification-show { animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #fea619;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .card-enter { animation: fadeInUp 0.3s ease-out; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body class="pb-32">
+
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#003525] shadow-lg flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-[#fea619] flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#003525] text-2xl" style="font-variation-settings: 'FILL' 1;">reduce_capacity</span>
+    </div>
+    <div>
+        <h1 class="text-sm font-black tracking-widest text-[#f8f9ff] uppercase">BASE DE DONNÉES</h1>
+        <p class="text-[10px] text-emerald-200/70">Union Progressiste le Renouveau</p>
+    </div>
+</div>
+<div class="flex items-center gap-4">
+    <button onclick="logout()" class="text-emerald-200/70 hover:text-[#fea619] transition-colors">
+        <span class="material-symbols-outlined">logout</span>
+    </button>
+</div>
+</header>
+
+<main class="mt-20 px-4 max-w-lg mx-auto">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-extrabold text-[#003525] tracking-tight mb-1" id="welcomeTitle">Mon Dashboard</h1>
+        <p class="text-gray-500 text-sm" id="userInfo">Chargement...</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="window.location.href='add.html'">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Mes ajouts</p>
+                    <p class="text-3xl font-black text-[#003525]" id="totalAjouts">0</p>
+                </div>
+                <span class="material-symbols-outlined text-4xl text-[#fea619]">person_add</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="window.location.href='add.html'">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Ajouter</p>
+                    <p class="text-xl font-black text-[#003525]">+ Nouveau</p>
+                </div>
+                <span class="material-symbols-outlined text-4xl text-[#fea619]">add_circle</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton ajout rapide -->
+    <a href="add.html" class="w-full bg-[#fea619] hover:bg-[#e89510] text-[#003525] font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 mb-6">
+        <span class="material-symbols-outlined">person_add</span>
+        Ajouter un militant
+    </a>
+
+    <!-- Liste des militants ajoutés par l'utilisateur -->
+    <div class="mb-4">
+        <div class="flex justify-between items-center">
+            <h2 class="font-bold text-lg text-[#003525] flex items-center gap-2">
+                <span class="material-symbols-outlined text-[#fea619]">history</span>
+                Mes ajouts récents
+            </h2>
+            <span class="text-xs text-gray-400" id="ajoutsCount">0 militant(s)</span>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="mb-4">
+        <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-sm">search</span>
+            <input type="text" id="searchInput" class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="Rechercher dans mes ajouts..."/>
+        </div>
+    </div>
+
+    <!-- Liste des militants -->
+    <div id="militantsList" class="space-y-3 mb-6">
+        <div class="text-center py-8 text-gray-500">Chargement de vos ajouts...</div>
+    </div>
+</main>
+
+<!-- Modal pour afficher l'image -->
+<div id="imageModal" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4" onclick="closeModal()">
+    <div class="relative max-w-full max-h-full" onclick="event.stopPropagation()">
+        <img id="modalImage" class="max-w-full max-h-[90vh] object-contain rounded-lg" alt="Carte électeur">
+        <button onclick="closeModal()" class="absolute -top-10 right-0 text-white bg-black/50 rounded-full p-2">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        query, 
+        orderBy, 
+        where,
+        Timestamp
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+        authDomain: "militant-eed81.firebaseapp.com",
+        projectId: "militant-eed81",
+        storageBucket: "militant-eed81.appspot.com",
+        messagingSenderId: "705643782444",
+        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    let tousMilitants = [];
+    let userConnected = null;
+    let rechercheTimeout = '';
+    
+    // Récupérer l'utilisateur connecté
+    const savedUser = sessionStorage.getItem('user');
+    if (savedUser) {
+        userConnected = JSON.parse(savedUser);
+        document.getElementById('welcomeTitle').innerHTML = `👋 Bonjour ${userConnected.fullName || userConnected.username}`;
+        document.getElementById('userInfo').innerHTML = `📅 Connecté depuis le ${new Date().toLocaleDateString('fr-FR')}`;
+    } else {
+        window.location.href = 'login_simple.html';
+    }
+    
+    // Charger les militants ajoutés par cet utilisateur
+    async function chargerMesMilitants() {
+        try {
+            const militantsRef = collection(db, "militants");
+            // Filtrer par l'utilisateur qui a ajouté
+            const q = query(militantsRef, where("creePar", "==", userConnected.username), orderBy("date_inscription", "desc"));
+            const snapshot = await getDocs(q);
+            
+            tousMilitants = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                let dateInscription = data.date_inscription;
+                if (dateInscription && dateInscription.seconds) {
+                    dateInscription = new Date(dateInscription.seconds * 1000);
+                } else if (dateInscription && dateInscription.toDate) {
+                    dateInscription = dateInscription.toDate();
+                } else {
+                    dateInscription = new Date();
+                }
+                
+                tousMilitants.push({
+                    id: doc.id,
+                    nom: data.nom || '',
+                    prenom: data.prenom || '',
+                    telephone: data.telephone || '',
+                    quartier: data.quartier || '',
+                    carte_electeur: data.carte_electeur || '',
+                    centre_vote: data.centre_vote || '',
+                    responsable: data.responsable || '',
+                    carte_electeur_image: data.carte_electeur_image || null,
+                    date_inscription: dateInscription
+                });
+            });
+            
+            document.getElementById('totalAjouts').textContent = tousMilitants.length;
+            document.getElementById('ajoutsCount').textContent = `${tousMilitants.length} militant(s)`;
+            afficherMilitants(tousMilitants);
+            
+        } catch (error) {
+            console.error("Erreur chargement:", error);
+            document.getElementById('militantsList').innerHTML = `
+                <div class="bg-white rounded-xl p-8 text-center border border-gray-200">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-3">error</span>
+                    <p class="text-gray-500">Erreur de chargement de vos ajouts</p>
+                    <button onclick="location.reload()" class="mt-3 text-[#fea619] font-semibold">Réessayer</button>
+                </div>
+            `;
+        }
+    }
+    
+    // Afficher les militants
+    function afficherMilitants(militants) {
+        const container = document.getElementById('militantsList');
+        
+        if (militants.length === 0) {
+            container.innerHTML = `
+                <div class="bg-white rounded-xl p-8 text-center border border-gray-200">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-3">person_add</span>
+                    <p class="text-gray-500">Vous n'avez pas encore ajouté de militant</p>
+                    <a href="add.html" class="inline-block mt-3 bg-[#fea619] text-[#003525] font-semibold px-4 py-2 rounded-lg">➕ Ajouter votre premier militant</a>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = militants.map((m, index) => `
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 transition-all hover:shadow-md card-enter" style="animation-delay: ${index * 0.05}s">
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-[#003525]">${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}</h3>
+                            ${m.quartier ? `
+                            <p class="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                                <span class="material-symbols-outlined text-sm">location_on</span>
+                                ${escapeHtml(m.quartier)}
+                            </p>
+                            ` : ''}
+                        </div>
+                        <div class="flex gap-2">
+                            ${m.telephone ? `
+                            <button onclick="ouvrirWhatsApp('${m.telephone}', '${escapeHtml(m.prenom)} ${escapeHtml(m.nom)}')" 
+                                    class="bg-green-500 hover:bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all active:scale-95">
+                                <span class="material-symbols-outlined text-xl">whatsapp</span>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                        ${m.telephone ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">call</span>
+                            <a href="tel:${m.telephone}" class="hover:text-[#fea619] transition">${escapeHtml(m.telephone)}</a>
+                        </p>
+                        ` : ''}
+                        
+                        ${m.centre_vote ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">how_to_vote</span>
+                            <span>${escapeHtml(m.centre_vote)}</span>
+                        </p>
+                        ` : ''}
+                        
+                        ${m.responsable ? `
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <span class="material-symbols-outlined text-sm">person</span>
+                            <span>Responsable: ${escapeHtml(m.responsable)}</span>
+                        </p>
+                        ` : ''}
+                    </div>
+                    
+                    ${m.carte_electeur_image ? `
+                    <div class="mt-3">
+                        <button onclick="voirImage('${m.carte_electeur_image}')" 
+                                class="text-xs text-[#003525] hover:text-[#fea619] transition flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                            Voir la carte électeur
+                        </button>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mt-3 pt-2 border-t border-gray-100 flex justify-between items-center">
+                        <p class="text-xs text-gray-400">
+                            📅 Ajouté le ${formatDate(m.date_inscription)}
+                        </p>
+                        <span class="text-xs text-[#fea619] bg-amber-50 px-2 py-0.5 rounded-full">Ajouté par vous</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Recherche
+    function rechercherMilitants(terme) {
+        if (!terme || terme.length < 2) {
+            afficherMilitants(tousMilitants);
+            return;
+        }
+        
+        const termeLower = terme.toLowerCase();
+        const filtres = tousMilitants.filter(m => 
+            (m.nom && m.nom.toLowerCase().includes(termeLower)) ||
+            (m.prenom && m.prenom.toLowerCase().includes(termeLower)) ||
+            (m.telephone && m.telephone.includes(terme)) ||
+            (m.quartier && m.quartier.toLowerCase().includes(termeLower))
+        );
+        
+        afficherMilitants(filtres);
+    }
+    
+    // Ouvrir WhatsApp
+    window.ouvrirWhatsApp = function(phone, name) {
+        if (!phone) {
+            alert('Numéro de téléphone non disponible');
+            return;
+        }
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const message = encodeURIComponent(`Bonjour ${name}, ce message vous est envoyé depuis l'application de gestion des militants.`);
+        window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+    };
+    
+    // Voir l'image
+    window.voirImage = function(imageUrl) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageUrl;
+        modal.classList.remove('hidden');
+    };
+    
+    window.closeModal = function() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.add('hidden');
+        document.getElementById('modalImage').src = '';
+    };
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    
+    function formatDate(date) {
+        if (!date) return '—';
+        try {
+            return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        } catch { return '—'; }
+    }
+    
+    // Déconnexion
+    window.logout = function() {
+        sessionStorage.removeItem('user');
+        window.location.href = 'login_simple.html';
+    };
+    
+    // Recherche avec debounce
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        clearTimeout(rechercheTimeout);
+        rechercheTimeout = setTimeout(() => {
+            rechercherMilitants(e.target.value);
+        }, 300);
+    });
+    
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    
+    chargerMesMilitants();
+</script>
+
+</body>
+  </html>
