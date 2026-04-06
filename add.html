@@ -237,183 +237,190 @@
 
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { 
-        getFirestore, 
-        collection, 
-        addDoc, 
-        query, 
-        where, 
-        getDocs,
-        serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { 
-        getStorage, 
-        ref, 
-        uploadBytes, 
-        getDownloadURL 
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    query, 
+    where, 
+    getDocs,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    // Configuration Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
-        authDomain: "militant-eed81.firebaseapp.com",
-        projectId: "militant-eed81",
-        storageBucket: "militant-eed81.appspot.com",
-        messagingSenderId: "705643782444",
-        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
-    };
+// CONFIG FIREBASE
+const firebaseConfig = {
+    apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+    authDomain: "militant-eed81.firebaseapp.com",
+    projectId: "militant-eed81",
+    storageBucket: "militant-eed81.appspot.com",
+    messagingSenderId: "705643782444",
+    appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    
-    let selectedImage = null;
-    
-    // Éléments DOM
-    const uploadZone = document.getElementById('uploadZone');
-    const carteImage = document.getElementById('carte_image');
-    const previewContainer = document.getElementById('previewContainer');
-    const imagePreview = document.getElementById('imagePreview');
-    const clearImageBtn = document.getElementById('clearImageBtn');
-    const form = document.getElementById('militantForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const notification = document.getElementById('notification');
-    
-    // Zone de clic pour l'upload
-    uploadZone.addEventListener('click', () => carteImage.click());
-    
-    // Aperçu de l'image
-    carteImage.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            selectedImage = file;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                imagePreview.src = event.target.result;
-                previewContainer.classList.remove('hidden');
-                uploadZone.classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    // Effacer l'aperçu
-    clearImageBtn.addEventListener('click', () => {
-        selectedImage = null;
-        carteImage.value = '';
-        previewContainer.classList.add('hidden');
-        uploadZone.classList.remove('hidden');
-        imagePreview.src = '';
-    });
-    
-    // Afficher notification
-    function showNotification(message, type) {
-        notification.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
-        
-        if (type === 'success') {
-            notification.classList.add('bg-green-50', 'border-green-200', 'text-green-800', 'border');
-            notification.innerHTML = `<div class="flex items-center gap-2">
-                <span class="material-symbols-outlined">check_circle</span>
-                <span>${message}</span>
-            </div>`;
-        } else {
-            notification.classList.add('bg-red-50', 'border-red-200', 'text-red-800', 'border');
-            notification.innerHTML = `<div class="flex items-center gap-2">
-                <span class="material-symbols-outlined">error</span>
-                <span>${message}</span>
-            </div>`;
-        }
-        
-        setTimeout(() => {
-            notification.classList.add('hidden');
-        }, 5000);
-    }
-    
-    // Fonction pour les fonctionnalités à venir
-    window.showComingSoon = function() {
-        showNotification('🚀 Fonctionnalité bientôt disponible !', 'info');
-    };
-    
-    // Soumission du formulaire
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const nom = document.getElementById('nom').value.trim();
-        const prenom = document.getElementById('prenom').value.trim();
-        const telephone = document.getElementById('telephone').value.trim();
-        const quartier = document.getElementById('quartier').value;
-        const carteElecteur = document.getElementById('carte_electeur').value;
-        const centreVote = document.getElementById('centre_vote').value;
-        const responsable = document.getElementById('responsable').value;
-        
-        // Validation
-        if (!nom || !prenom || !telephone) {
-            showNotification('Veuillez remplir tous les champs obligatoires (*)', 'error');
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 🔥 CONFIG CLOUDINARY
+const CLOUD_NAME = "djnqwtapp";
+const UPLOAD_PRESET = "militant_upload"; // ⚠️ crée-le dans Cloudinary
+
+// 📷 IMAGE
+let selectedImage = null;
+
+// DOM
+const uploadZone = document.getElementById('uploadZone');
+const carteImage = document.getElementById('carte_image');
+const previewContainer = document.getElementById('previewContainer');
+const imagePreview = document.getElementById('imagePreview');
+const clearImageBtn = document.getElementById('clearImageBtn');
+const form = document.getElementById('militantForm');
+const submitBtn = document.getElementById('submitBtn');
+const notification = document.getElementById('notification');
+
+// CLICK UPLOAD
+uploadZone.addEventListener('click', () => carteImage.click());
+
+// PREVIEW IMAGE
+carteImage.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+        // 🔒 Limite taille 5MB
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('Image trop lourde (max 5MB)', 'error');
             return;
         }
-        
-        // Vérifier doublon par téléphone
+
+        selectedImage = file;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            imagePreview.src = event.target.result;
+            previewContainer.classList.remove('hidden');
+            uploadZone.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// CLEAR IMAGE
+clearImageBtn.addEventListener('click', () => {
+    selectedImage = null;
+    carteImage.value = '';
+    previewContainer.classList.add('hidden');
+    uploadZone.classList.remove('hidden');
+    imagePreview.src = '';
+});
+
+// NOTIFICATION
+function showNotification(message, type) {
+    notification.classList.remove('hidden', 'bg-green-50', 'bg-red-50');
+
+    if (type === 'success') {
+        notification.classList.add('bg-green-50');
+    } else {
+        notification.classList.add('bg-red-50');
+    }
+
+    notification.innerText = message;
+
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 4000);
+}
+
+// 🚀 UPLOAD CLOUDINARY
+async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+
+    if (!data.secure_url) {
+        throw new Error("Erreur upload Cloudinary");
+    }
+
+    return data.secure_url;
+}
+
+// SUBMIT
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nom = document.getElementById('nom').value.trim();
+    const prenom = document.getElementById('prenom').value.trim();
+    const telephone = document.getElementById('telephone').value.trim();
+    const quartier = document.getElementById('quartier').value;
+    const carteElecteur = document.getElementById('carte_electeur').value;
+    const centreVote = document.getElementById('centre_vote').value;
+    const responsable = document.getElementById('responsable').value;
+
+    if (!nom || !prenom || !telephone) {
+        showNotification('Veuillez remplir les champs obligatoires', 'error');
+        return;
+    }
+
+    try {
+        // 🔍 Vérifier doublon
         const militantsRef = collection(db, 'militants');
         const q = query(militantsRef, where('telephone', '==', telephone));
         const querySnapshot = await getDocs(q);
-        
+
         if (!querySnapshot.empty) {
-            showNotification('❌ Ce militant existe déjà (téléphone)', 'error');
+            showNotification('❌ Ce militant existe déjà', 'error');
             return;
         }
-        
-        // Désactiver le bouton
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading-spinner"></span> Enregistrement...';
-        
-        try {
-            let imageUrl = null;
-            
-            // Upload de l'image vers Firebase Storage si présente
-            if (selectedImage) {
-                const fileName = `cartes_electeur/${Date.now()}_${selectedImage.name}`;
-                const storageRef = ref(storage, fileName);
-                const snapshot = await uploadBytes(storageRef, selectedImage);
-                imageUrl = await getDownloadURL(snapshot.ref);
-            }
-            
-            // Ajouter à Firestore
-            await addDoc(collection(db, 'militants'), {
-                nom: nom.toUpperCase(),
-                prenom: prenom.toUpperCase(),
-                telephone: telephone,
-                quartier: quartier || '',
-                carte_electeur: carteElecteur || '',
-                centre_vote: centreVote || '',
-                responsable: responsable || '',
-                carte_electeur_image: imageUrl,
-                date_inscription: serverTimestamp(),
-                statut: 'actif',
-                cotisation_a_jour: false,
-                created_at: serverTimestamp()
-            });
-            
-            showNotification('✅ Militant ajouté avec succès', 'success');
-            
-            // Réinitialiser le formulaire
-            form.reset();
-            clearImageBtn.click();
-            
-            // Redirection après 1.5 secondes
-            setTimeout(() => {
-                window.location.href = 'list.html';
-            }, 1500);
-            
-        } catch (error) {
-            console.error('Erreur:', error);
-            showNotification('Erreur lors de l\'ajout: ' + error.message, 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        }
-    });
-</script>
 
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '⏳ Enregistrement...';
+
+        let imageUrl = null;
+
+        // 📷 Upload Cloudinary
+        if (selectedImage) {
+            imageUrl = await uploadToCloudinary(selectedImage);
+        }
+
+        // 💾 Enregistrer Firestore
+        await addDoc(collection(db, 'militants'), {
+            nom: nom.toUpperCase(),
+            prenom: prenom.toUpperCase(),
+            telephone,
+            quartier: quartier || '',
+            carte_electeur: carteElecteur || '',
+            centre_vote: centreVote || '',
+            responsable: responsable || '',
+            carte_electeur_image: imageUrl,
+            statut: 'actif',
+            cotisation_a_jour: false,
+            date_inscription: serverTimestamp(),
+            created_at: serverTimestamp()
+        });
+
+        showNotification('✅ Militant ajouté avec succès', 'success');
+
+        form.reset();
+        clearImageBtn.click();
+
+        setTimeout(() => {
+            window.location.href = 'list.html';
+        }, 1500);
+
+    } catch (error) {
+        console.error(error);
+        showNotification(error.message, 'error');
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Enregistrer';
+    }
+});
+</script>
 </body>
   </html>
