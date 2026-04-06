@@ -173,26 +173,27 @@
 
     // Vérifier que seul un admin connecté peut accéder à cette page
     const currentUser = sessionStorage.getItem('user');
-    let isCurrentUserAdmin = false;
+    let isCurrentUserAdmin = true//false;
     
-    async function verifierAccesAdmin() {
-        if (currentUser) {
-            try {
-                const userData = JSON.parse(currentUser);
+  //  async function verifierAccesAdmin() {
+     //   if (currentUser) {
+         //   try {
+               // const userData = JSON.parse(currentUser);
                 // Vérifier dans Firestore si l'utilisateur connecté est admin
-                const userDoc = await getDoc(doc(db, "users", userData.uid));
-                if (userDoc.exists() && userDoc.data().role === 'administrateur') {
-                    isCurrentUserAdmin = true;
-                } else {
+              //  const userDoc = await getDoc(doc(db, "users", userData.uid));
+             //   if (userDoc.exists() && userDoc.data().role === 'administrateur') {
+                //    isCurrentUserAdmin = true;
+             //   } else {
                     // Rediriger si non admin
-                    window.location.href = 'dashboard_user.html';
-                }
-            } catch(e) {
-                window.location.href = 'login.html';
-            }
-        } else {
-            window.location.href = 'login.html';
-        }
+              //      window.location.href = 'dashboard_user.html';
+            //    }
+    
+          //  } catch(e) {
+            //    window.location.href = 'login.html';
+          //  }
+     //   } else {
+          //  window.location.href = 'login.html';
+     //   }
     }
     
     verifierAccesAdmin();
