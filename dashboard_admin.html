@@ -159,6 +159,40 @@
             border-left-width: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
+        
+        /* Dropdown menu styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            z-index: 100;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: #003525;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .dropdown-content a:hover {
+            background-color: #fef9e6;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
     </style>
 <style>
     body {
@@ -180,8 +214,40 @@
         <p class="text-[10px] text-emerald-200/70">Union Progressiste le Renouveau</p>
       </div>
 </div>
-<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
-<img src="img/file_000000003d1871f8bf29e606a536d279.png" class="material-symbols-outlined text-white">
+<div class="flex items-center gap-4">
+    <!-- Menu utilisateur avec dropdown -->
+    <div class="dropdown">
+        <button class="text-emerald-200/70 hover:text-[#fea619] transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            <span class="text-xs hidden md:inline">Admin</span>
+        </button>
+        <div class="dropdown-content">
+            <a href="register.html">
+                <span class="material-symbols-outlined text-sm">person_add</span>
+                Ajouter un utilisateur
+            </a>
+            <a href="users_management.html">
+                <span class="material-symbols-outlined text-sm">groups</span>
+                Voir les utilisateurs
+            </a>
+            <a href="list.html">
+                <span class="material-symbols-outlined text-sm">list_alt</span>
+                Voir les militants
+            </a>
+            <a href="add.html">
+                <span class="material-symbols-outlined text-sm">how_to_reg</span>
+                Ajouter un militant
+            </a>
+            <hr class="my-1 border-gray-100">
+            <a href="#" onclick="logout()">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                Déconnexion
+            </a>
+        </div>
+    </div>
+    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
+        <img src="img/file_000000003d1871f8bf29e606a536d279.png" class="material-symbols-outlined text-white">
+    </div>
 </div>
 </header>
 
@@ -410,6 +476,7 @@ Statistiques
         where,
         Timestamp
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
     // Configuration Firebase
     const firebaseConfig = {
@@ -423,11 +490,28 @@ Statistiques
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
     
     let totalMilitants = 0;
     let nouveauxMois = 0;
     let derniersMilitants = [];
     let topQuartierData = null;
+    
+    // Récupérer le nom de l'utilisateur connecté
+    const currentUser = sessionStorage.getItem('user');
+    if (currentUser) {
+        try {
+            const user = JSON.parse(currentUser);
+            document.getElementById('userName').textContent = user.fullName || user.username;
+        } catch(e) {}
+    }
+    
+    // Fonction de déconnexion
+    window.logout = async function() {
+        await signOut(auth);
+        sessionStorage.removeItem('user');
+        window.location.href = 'login_simple.html';
+    };
     
     // Formater la date Firebase
     function formatDate(date) {
@@ -598,4 +682,5 @@ Statistiques
     loadDashboardData();
 </script>
 
-</body></html>
+</body>
+                  </html>
