@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestion des utilisateurs - Base de données</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    body { font-family: 'Inter', sans-serif; background: #f8f9ff; min-height: 100vh; }
+    .stat-card { transition: all 0.3s ease; cursor: pointer; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+    .notification-show { animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .user-card { transition: all 0.3s ease; }
+    .user-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal.active {
+        display: flex;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+</style>
+</head>
+<body class="pb-32">
+
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#003525] shadow-lg flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-[#fea619] flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#003525] text-2xl" style="font-variation-settings: 'FILL' 1;">reduce_capacity</span>
+    </div>
+    <div>
+        <h1 class="text-sm font-black tracking-widest text-[#f8f9ff] uppercase">BASE DE DONNÉES</h1>
+        <p class="text-[10px] text-emerald-200/70">Union Progressiste le Renouveau</p>
+    </div>
+</div>
+<div class="flex items-center gap-4">
+    <a href="dashboard.html" class="text-emerald-200/70 hover:text-[#fea619] transition-colors">
+        <span class="material-symbols-outlined">dashboard</span>
+    </a>
+    <button onclick="logout()" class="text-emerald-200/70 hover:text-[#fea619] transition-colors">
+        <span class="material-symbols-outlined">logout</span>
+    </button>
+</div>
+</header>
+
+<main class="mt-20 px-4 max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-extrabold text-[#003525] tracking-tight mb-1">Gestion des utilisateurs</h1>
+        <p class="text-gray-500 text-sm">Gérez les comptes utilisateurs de l'application</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total utilisateurs</p>
+                    <p class="text-3xl font-black text-[#003525]" id="totalUsers">0</p>
+                </div>
+                <span class="material-symbols-outlined text-4xl text-[#fea619]">groups</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Administrateurs</p>
+                    <p class="text-3xl font-black text-[#003525]" id="totalAdmins">0</p>
+                </div>
+                <span class="material-symbols-outlined text-4xl text-[#fea619]">admin_panel_settings</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Utilisateurs standard</p>
+                    <p class="text-3xl font-black text-[#003525]" id="totalUsersStd">0</p>
+                </div>
+                <span class="material-symbols-outlined text-4xl text-[#fea619]">person</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre de recherche et filtre -->
+    <div class="flex flex-col md:flex-row gap-3 mb-6">
+        <div class="flex-1 relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-sm">search</span>
+            <input type="text" id="searchInput" class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" placeholder="Rechercher par nom ou email..."/>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="filterUsers('all')" id="filterAll" class="px-4 py-2 rounded-xl bg-[#fea619] text-[#003525] font-semibold text-sm transition">Tous</button>
+            <button onclick="filterUsers('admin')" id="filterAdmin" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition">Administrateurs</button>
+            <button onclick="filterUsers('user')" id="filterUser" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition">Utilisateurs</button>
+            <button onclick="openAddUserModal()" class="px-4 py-2 rounded-xl bg-[#003525] text-white font-semibold text-sm flex items-center gap-1 transition hover:bg-[#004e38]">
+                <span class="material-symbols-outlined text-sm">person_add</span>
+                Ajouter
+            </button>
+        </div>
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div id="usersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="text-center py-8 text-gray-500 col-span-full">Chargement des utilisateurs...</div>
+    </div>
+</main>
+
+<!-- Modal Ajouter/Modifier utilisateur -->
+<div id="userModal" class="modal">
+    <div class="modal-content p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="modalTitle" class="text-xl font-bold text-[#003525]">Ajouter un utilisateur</h2>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="userForm" class="space-y-4">
+            <input type="hidden" id="userId">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nom complet *</label>
+                <input type="text" id="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" required>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nom d'utilisateur *</label>
+                <input type="text" id="username" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition" required>
+                <p class="text-xs text-gray-400 mt-1">Utilisé pour la connexion</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone</label>
+                <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition">
+            </div>
+            <div id="passwordField">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Mot de passe *</label>
+                <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition">
+                <p class="text-xs text-gray-400 mt-1">Minimum 6 caractères</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Rôle</label>
+                <select id="role" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#fea619] focus:border-[#fea619] transition">
+                    <option value="lecteur">👤 Utilisateur standard</option>
+                    <option value="administrateur">👑 Administrateur</option>
+                </select>
+            </div>
+            <button type="submit" id="submitBtn" class="w-full bg-[#fea619] hover:bg-[#e89510] text-[#003525] font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">save</span>
+                Enregistrer
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Confirmation suppression -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content p-6 text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-red-500 text-3xl">warning</span>
+        </div>
+        <h3 class="text-xl font-bold text-[#003525] mb-2">Confirmer la suppression</h3>
+        <p class="text-gray-500 mb-4">Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
+        <p id="deleteUserName" class="text-[#003525] font-semibold mb-6"></p>
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition">Annuler</button>
+            <button id="confirmDeleteBtn" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification -->
+<div id="notification" class="fixed top-20 right-4 z-50 hidden max-w-sm bg-white rounded-xl shadow-lg p-4 notification-show"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        addDoc, 
+        updateDoc, 
+        deleteDoc, 
+        doc,
+        query,
+        orderBy
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
+        authDomain: "militant-eed81.firebaseapp.com",
+        projectId: "militant-eed81",
+        storageBucket: "militant-eed81.appspot.com",
+        messagingSenderId: "705643782444",
+        appId: "1:705643782444:web:7a07c0c80f3306dc8f0c89"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    let allUsers = [];
+    let currentFilter = 'all';
+    let currentDeleteId = null;
+    
+    // Charger les utilisateurs
+    async function loadUsers() {
+        try {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, orderBy('createdAt', 'desc'));
+            const snapshot = await getDocs(q);
+            
+            allUsers = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                allUsers.push({
+                    id: doc.id,
+                    fullName: data.fullName || '',
+                    username: data.username || '',
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    role: data.role || 'lecteur',
+                    createdAt: data.createdAt
+                });
+            });
+            
+            updateStats();
+            filterUsers(currentFilter);
+            
+        } catch (error) {
+            console.error('Erreur chargement:', error);
+            showNotification('Erreur de chargement des utilisateurs', 'error');
+        }
+    }
+    
+    // Mettre à jour les statistiques
+    function updateStats() {
+        const admins = allUsers.filter(u => u.role === 'administrateur').length;
+        const users = allUsers.filter(u => u.role === 'lecteur').length;
+        
+        document.getElementById('totalUsers').textContent = allUsers.length;
+        document.getElementById('totalAdmins').textContent = admins;
+        document.getElementById('totalUsersStd').textContent = users;
+    }
+    
+    // Filtrer les utilisateurs
+    function filterUsers(filter) {
+        currentFilter = filter;
+        
+        // Mettre à jour l'apparence des boutons
+        document.getElementById('filterAll').className = 'px-4 py-2 rounded-xl text-sm transition ' + 
+            (filter === 'all' ? 'bg-[#fea619] text-[#003525] font-semibold' : 'bg-gray-100 text-gray-600 hover:bg-gray-200');
+        document.getElementById('filterAdmin').className = 'px-4 py-2 rounded-xl text-sm transition ' + 
+            (filter === 'admin' ? 'bg-[#fea619] text-[#003525] font-semibold' : 'bg-gray-100 text-gray-600 hover:bg-gray-200');
+        document.getElementById('filterUser').className = 'px-4 py-2 rounded-xl text-sm transition ' + 
+            (filter === 'user' ? 'bg-[#fea619] text-[#003525] font-semibold' : 'bg-gray-100 text-gray-600 hover:bg-gray-200');
+        
+        let filteredUsers = allUsers;
+        if (filter === 'admin') {
+            filteredUsers = allUsers.filter(u => u.role === 'administrateur');
+        } else if (filter === 'user') {
+            filteredUsers = allUsers.filter(u => u.role === 'lecteur');
+        }
+        
+        displayUsers(filteredUsers);
+    }
+    
+    // Afficher les utilisateurs
+    function displayUsers(users) {
+        const container = document.getElementById('usersList');
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        let filtered = users;
+        if (searchTerm) {
+            filtered = users.filter(u => 
+                u.fullName.toLowerCase().includes(searchTerm) || 
+                u.username.toLowerCase().includes(searchTerm) ||
+                (u.email && u.email.toLowerCase().includes(searchTerm))
+            );
+        }
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-gray-500 col-span-full">Aucun utilisateur trouvé</div>';
+            return;
+        }
+        
+        container.innerHTML = filtered.map(user => `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden user-card">
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full ${user.role === 'administrateur' ? 'bg-amber-100' : 'bg-green-100'} flex items-center justify-center">
+                                <span class="material-symbols-outlined ${user.role === 'administrateur' ? 'text-amber-600' : 'text-green-600'}">
+                                    ${user.role === 'administrateur' ? 'admin_panel_settings' : 'person'}
+                                </span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-[#003525]">${escapeHtml(user.fullName)}</h3>
+                                <p class="text-sm text-gray-500">@${escapeHtml(user.username)}</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${user.role === 'administrateur' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">
+                            ${user.role === 'administrateur' ? '👑 Administrateur' : '👤 Utilisateur'}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm mb-4">
+                        ${user.email ? `
+                        <p class="flex items-center gap-2 text-gray-500">
+                            <span class="material-symbols-outlined text-sm">email</span>
+                            ${escapeHtml(user.email)}
+                        </p>
+                        ` : ''}
+                        ${user.phone ? `
+                        <p class="flex items-center gap-2 text-gray-500">
+                            <span class="material-symbols-outlined text-sm">call</span>
+                            ${escapeHtml(user.phone)}
+                        </p>
+                        ` : ''}
+                        <p class="flex items-center gap-2 text-gray-400 text-xs">
+                            <span class="material-symbols-outlined text-xs">calendar_today</span>
+                            Créé le: ${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString('fr-FR') : '—'}
+                        </p>
+                    </div>
+                    
+                    <div class="flex gap-2 pt-3 border-t border-gray-100">
+                        <button onclick="openEditModal('${user.id}')" class="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-semibold hover:bg-blue-100 transition flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                            Modifier
+                        </button>
+                        <button onclick="openDeleteModal('${user.id}', '${escapeHtml(user.fullName)}')" class="flex-1 px-3 py-2 bg-red-50 text-red-500 rounded-lg text-sm font-semibold hover:bg-red-100 transition flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Ouvrir modal ajout
+    window.openAddUserModal = function() {
+        document.getElementById('modalTitle').textContent = 'Ajouter un utilisateur';
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('passwordField').style.display = 'block';
+        document.getElementById('password').required = true;
+        document.getElementById('userModal').classList.add('active');
+    };
+    
+    // Ouvrir modal modification
+    window.openEditModal = async function(userId) {
+        const user = allUsers.find(u => u.id === userId);
+        if (!user) return;
+        
+        document.getElementById('modalTitle').textContent = 'Modifier un utilisateur';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('fullName').value = user.fullName;
+        document.getElementById('username').value = user.username;
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('phone').value = user.phone || '';
+        document.getElementById('role').value = user.role;
+        document.getElementById('passwordField').style.display = 'none';
+        document.getElementById('password').required = false;
+        document.getElementById('userModal').classList.add('active');
+    };
+    
+    // Ouvrir modal suppression
+    window.openDeleteModal = function(userId, userName) {
+        currentDeleteId = userId;
+        document.getElementById('deleteUserName').textContent = userName;
+        document.getElementById('deleteModal').classList.add('active');
+    };
+    
+    window.closeModal = function() {
+        document.getElementById('userModal').classList.remove('active');
+    };
+    
+    window.closeDeleteModal = function() {
+        document.getElementById('deleteModal').classList.remove('active');
+        currentDeleteId = null;
+    };
+    
+    // Sauvegarder utilisateur (ajout/modification)
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const userId = document.getElementById('userId').value;
+        const fullName = document.getElementById('fullName').value.trim();
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const role = document.getElementById('role').value;
+        const password = document.getElementById('password').value;
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Enregistrement...';
+        
+        try {
+            if (userId) {
+                // Modification
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    fullName: fullName,
+                    username: username,
+                    email: email,
+                    phone: phone,
+                    role: role
+                });
+                showNotification('✅ Utilisateur modifié avec succès', 'success');
+            } else {
+                // Ajout - création compte Firebase Auth
+                const fakeEmail = `${username}@militant.local`;
+                const userCredential = await createUserWithEmailAndPassword(auth, fakeEmail, password);
+                const firebaseUser = userCredential.user;
+                
+                await addDoc(collection(db, "users"), {
+                    uid: firebaseUser.uid,
+                    fullName: fullName,
+                    username: username,
+                    email: email || fakeEmail,
+                    phone: phone,
+                    role: role,
+                    createdAt: new Date(),
+                    isActive: true
+                });
+                showNotification('✅ Utilisateur ajouté avec succès', 'success');
+            }
+            
+            closeModal();
+            await loadUsers();
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            let message = 'Erreur lors de l\'enregistrement';
+            if (error.code === 'auth/email-already-in-use') {
+                message = 'Ce nom d\'utilisateur est déjà utilisé';
+            }
+            showNotification(message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+    
+    // Confirmer suppression
+    document.getElementById('confirmDeleteBtn').onclick = async () => {
+        if (currentDeleteId) {
+            try {
+                await deleteDoc(doc(db, "users", currentDeleteId));
+                showNotification('✅ Utilisateur supprimé avec succès', 'success');
+                closeDeleteModal();
+                await loadUsers();
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                showNotification('❌ Erreur lors de la suppression', 'error');
+            }
+        }
+    };
+    
+    // Recherche en temps réel
+    document.getElementById('searchInput').addEventListener('input', () => {
+        filterUsers(currentFilter);
+    });
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    
+    function showNotification(message, type) {
+        const notif = document.getElementById('notification');
+        notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-200', 'border-red-200', 'text-green-800', 'text-red-800');
+        notif.classList.add(type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800', 'border');
+        notif.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'error'}</span><span>${message}</span></div>`;
+        notif.classList.remove('hidden');
+        setTimeout(() => notif.classList.add('hidden'), 4000);
+    }
+    
+    window.logout = async function() {
+        await signOut(auth);
+        sessionStorage.removeItem('user');
+        window.location.href = 'login_simple.html';
+    };
+    
+    // Chargement initial
+    loadUsers();
+</script>
+
+<style>
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #fea619;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal.active {
+        display: flex;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+</style>
+</body>
+  </html> 
