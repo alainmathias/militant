@@ -226,7 +226,7 @@
                 <span class="material-symbols-outlined text-sm">person_add</span>
                 Ajouter un utilisateur
             </a>
-            <a href="users_management.html">
+            <a href="geste.html">
                 <span class="material-symbols-outlined text-sm">groups</span>
                 Voir les utilisateurs
             </a>
@@ -510,7 +510,7 @@ Statistiques
     window.logout = async function() {
         await signOut(auth);
         sessionStorage.removeItem('user');
-        window.location.href = 'login_simple.html';
+        window.location.href = 'login.html';
     };
     
     // Formater la date Firebase
