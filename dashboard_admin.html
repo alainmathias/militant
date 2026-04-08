@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Admin Dashboard - Base de données militants</title>
+<title>Data Base militants - Accueil</title>
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <!-- Google Fonts -->
@@ -96,6 +96,12 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
         .stat-card {
             transition: all 0.3s ease;
             cursor: pointer;
@@ -104,6 +110,7 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
+        
         .clickable-card {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -112,13 +119,37 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
+        
         .notification-show {
             animation: slideDown 0.3s ease-out;
         }
+        
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #fea619;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .zone-card {
             background: linear-gradient(135deg, #fef9e6 0%, #fff5e0 100%);
             border-left: 4px solid #fea619;
@@ -128,20 +159,19 @@
             border-left-width: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .user-card {
-            transition: all 0.3s ease;
-        }
-        .user-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
     </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
 </head>
-<body class="bg-background text-on-background font-body">
+<body class="bg-background text-on-background font-body selection:bg-secondary-container selection:text-on-secondary-container">
 
 <!-- TopAppBar -->
 <header class="fixed top-0 w-full z-50 bg-[#003525] shadow-lg shadow-black/20 flex justify-between items-center px-6 h-16 w-full">
 <div class="flex items-center gap-3">
+      <!-- Logo devant le texte -->
       <div class="w-10 h-10 rounded-full bg-[#fea619] flex items-center justify-center">
         <span class="material-symbols-outlined text-[#003525] text-2xl" style="font-variation-settings: 'FILL' 1;">reduce_capacity</span>
       </div>
@@ -150,14 +180,14 @@
         <p class="text-[10px] text-emerald-200/70">Union Progressiste le Renouveau</p>
       </div>
 </div>
-<div class="flex items-center gap-4">
-    <button onclick="logout()" class="text-emerald-200/70 hover:text-[#fea619] transition-colors">
-        <span class="material-symbols-outlined">logout</span>
-    </button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#fea619] bg-gray-300 flex items-center justify-center">
+<img src="img/file_000000003d1871f8bf29e606a536d279.png" class="material-symbols-outlined text-white">
 </div>
 </header>
 
+<!-- Main Content Canvas -->
 <main class="pt-16 pb-32">
+<!-- Scrolling News Ticker -->
 <div class="ticker-wrap h-10 flex items-center shadow-md">
 <div class="ticker text-[#fea619] font-label text-[10px] uppercase tracking-widest font-bold" id="tickerContent">
 <span class="ticker__item">🎉 Chargement...</span>
@@ -165,7 +195,7 @@
 </div>
 
 <div class="px-6 mt-8 max-w-7xl mx-auto">
-<!-- Zone des zones -->
+<!-- Zone des zones (clickable) -->
 <div class="mb-6 cursor-pointer" onclick="showComingSoon()">
       <div class="bg-gradient-to-r from-[#004e38] to-[#006b4d] rounded-xl p-4 zone-card shadow-sm">
         <div class="flex items-center justify-between flex-wrap">
@@ -173,7 +203,7 @@
             <span class="material-symbols-outlined text-2xl text-[#fea619]">location_city</span>
             <div>
               <p class="text-emerald-100 text-xs uppercase tracking-wider">Gestion des militants des zones</p>
-              <p class="text-xl font-black text-white whitespace-nowrap">Drabo - Koinvié - Xossèvié</p>
+              <p class="text-xl font-black text-white whitespace-nowrap" id="nouveis">Drabo - Koinvié - Xossèvié</p>
             </div>
           </div>
           <div class="flex items-center gap-1 text-emerald-200/70 text-sm">
@@ -184,22 +214,21 @@
       </div>
     </div>
 
-<!-- Hero Section -->
 <section class="relative overflow-hidden rounded-xl mb-8 bg-primary-container p-8 min-h-[220px] flex flex-col justify-end">
 <div class="absolute inset-0 z-0">
 <img class="w-full h-full object-cover opacity-30 mix-blend-overlay" alt="abstract architectural details" src="img/IMG-20260331-WA0063.png"/>
 <div class="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent"></div>
 </div>
 <div class="relative z-10">
-<p class="text-on-primary-container font-label text-[13px] uppercase tracking-[0.2em] mb-2">ADMINISTRATION</p>
+<p class="text-on-primary-container font-label text-[13px] uppercase tracking-[0.2em] mb-2">TABLEAU DE BORD DES MILITANTS</p>
 <h2 class="text-display-sm font-headline text-3xl font-extrabold text-white leading-tight">
-Bienvenue, <span class="text-secondary-container" id="adminName">Administrateur</span>.
+Bienvenue, <span class="text-secondary-container" id="userName">aux têtes de ponts</span>.
 </h2>
-<p class="text-emerald-100/70 mt-2 max-w-md">Gérez les militants et les utilisateurs de la plateforme.</p>
+<p class="text-emerald-100/70 mt-2 max-w-md">La gestion minutieuse des militants à la base est la force de l'électorat.</p>
 </div>
 </section>
 
-<!-- Statistiques -->
+<!-- Statistiques rapides (toutes clickables) -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
     <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="window.location.href='list.html'">
         <div class="flex items-center justify-between">
@@ -222,16 +251,16 @@ Bienvenue, <span class="text-secondary-container" id="adminName">Administrateur<
     <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="showNotification('Voir les quartiers actifs', 'info')">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Total utilisateurs</p>
-                <p class="text-3xl font-black text-[#003525]" id="totalUsers">0</p>
+                <p class="text-gray-500 text-sm">Quartier actif</p>
+                <p class="text-base font-bold text-[#003525] truncate" id="topQuartier">—</p>
             </div>
-            <span class="material-symbols-outlined text-4xl text-[#fea619]">admin_panel_settings</span>
+            <span class="material-symbols-outlined text-4xl text-[#fea619]">location_on</span>
         </div>
     </div>
-    <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="showNotification('Objectif 10000 militants', 'info')">
+    <div class="bg-white rounded-xl p-4 stat-card shadow-sm border border-gray-100" onclick="showNotification('Objectif 1000 militants', 'info')">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Taux progression</p>
+                <p class="text-gray-500 text-sm">Taux de progression</p>
                 <p class="text-3xl font-black text-[#003525]" id="tauxProgression">0%</p>
             </div>
             <span class="material-symbols-outlined text-4xl text-[#fea619]">target</span>
@@ -239,85 +268,60 @@ Bienvenue, <span class="text-secondary-container" id="adminName">Administrateur<
     </div>
 </div>
 
-<!-- Actions Admin - Militants -->
-<div class="mb-8">
-    <h2 class="font-bold text-xl text-[#003525] mb-4 flex items-center gap-2">
-        <span class="material-symbols-outlined text-[#fea619]">military_tech</span>
-        Gestion des militants
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <a href="add.html" class="group flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
-            <div class="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center text-[#fea619] group-hover:bg-[#fea619] group-hover:text-white transition">
-                <span class="material-symbols-outlined">person_add</span>
-            </div>
-            <div>
-                <h3 class="font-bold text-[#003525]">Ajouter un militant</h3>
-                <p class="text-xs text-gray-400">Enregistrer un nouveau soutien</p>
-            </div>
-        </a>
-        <a href="list.html" class="group flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
-            <div class="h-12 w-12 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition">
-                <span class="material-symbols-outlined">groups</span>
-            </div>
-            <div>
-                <h3 class="font-bold text-[#003525]">Liste des militants</h3>
-                <p class="text-xs text-gray-400">Consulter et gérer</p>
-            </div>
-        </a>
-        <a href="list.html" class="group flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
-            <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
-                <span class="material-symbols-outlined">filter_alt</span>
-            </div>
-            <div>
-                <h3 class="font-bold text-[#003525]">Filtrer par centre</h3>
-                <p class="text-xs text-gray-400">Trier par centre de vote</p>
-            </div>
-        </a>
-        <button onclick="showComingSoon()" class="group flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
-            <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition">
-                <span class="material-symbols-outlined">download</span>
-            </div>
-            <div>
-                <h3 class="font-bold text-[#003525]">Exporter</h3>
-                <p class="text-xs text-gray-400">Export CSV/PDF</p>
-            </div>
-        </button>
-    </div>
+<!-- Grid Layout Inspiration -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Action Cards -->
+<a href="add.html" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-amber-500 rounded-xl shadow-md hover:shadow-xl transition-all border border-amber-200 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-green-500 flex items-center justify-center text-[#fea619] mb-12 group-hover:bg-[#fea619] group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">person_add</span>
 </div>
+<div>
+<h3 class="font-headline font-bold text-xl text-[#003525] leading-none mb-1">Ajouter un militant</h3>
+<p class="text-sm text-gray-500">Enregistrer un nouveau soutien</p>
+</div>
+<span class="absolute top-6 right-6 text-[#fea619] opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</a>
 
-<!-- Gestion des utilisateurs -->
-<div class="mb-8">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="font-bold text-xl text-[#003525] flex items-center gap-2">
-            <span class="material-symbols-outlined text-[#fea619]">admin_panel_settings</span>
-            Gestion des utilisateurs
-        </h2>
-        <a href="register.html" class="bg-[#fea619] hover:bg-[#e89510] text-[#003525] font-semibold px-4 py-2 rounded-lg text-sm flex items-center gap-1 transition">
-            <span class="material-symbols-outlined text-sm">person_add</span>
-            Nouvel utilisateur
-        </a>
-    </div>
-    
-    <!-- Liste des utilisateurs -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="text-left p-3 text-xs font-semibold text-gray-500">Utilisateur</th>
-                        <th class="text-left p-3 text-xs font-semibold text-gray-500">Nom complet</th>
-                        <th class="text-left p-3 text-xs font-semibold text-gray-500">Téléphone</th>
-                        <th class="text-left p-3 text-xs font-semibold text-gray-500">Rôle</th>
-                        <th class="text-left p-3 text-xs font-semibold text-gray-500">Date création</th>
-                        <th class="text-center p-3 text-xs font-semibold text-gray-500">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <tr><td colspan="6" class="text-center p-4 text-gray-400">Chargement des utilisateurs...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<a href="list.html" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-emerald-500 rounded-xl shadow-md hover:shadow-xl transition-all border border-emerald-200 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-emerald-500 flex items-center justify-center text-emerald-600 mb-12 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-[#003525] leading-none mb-1">Liste des militants</h3>
+<p class="text-sm text-gray-500">Consulter et gérer</p>
+</div>
+<span class="absolute top-6 right-6 text-emerald-500 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</a>
+
+<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-[#fea619] to-[#e89510] rounded-xl shadow-md hover:shadow-xl transition-all border border-amber-300 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-white/30 flex items-center justify-center text-white mb-12 group-hover:bg-white/40 transition-all duration-300">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-white leading-none mb-1">Devenir membre</h3>
+<p class="text-sm text-white/80">Adhésion formelle au parti</p>
+</div>
+<span class="absolute top-6 right-6 text-white/50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</button>
+
+<button onclick="showComingSoon()" class="group flex flex-col justify-between items-start p-6 bg-gradient-to-br from-white to-purple-500 rounded-xl shadow-md hover:shadow-xl transition-all border border-purple-200 relative overflow-hidden active:scale-95 cursor-pointer">
+<div class="h-12 w-12 rounded-lg bg-purple-500 flex items-center justify-center text-purple-600 mb-12 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">credit_card</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-xl text-[#003525] leading-none mb-1">Commander une carte</h3>
+<p class="text-sm text-gray-500">Carte de membre officielle</p>
+</div>
+<span class="absolute top-6 right-6 text-purple-500 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
+<span class="material-symbols-outlined">north_east</span>
+</span>
+</button>
 </div>
 
 <!-- Dernières activités -->
@@ -327,7 +331,7 @@ Bienvenue, <span class="text-secondary-container" id="adminName">Administrateur<
 <a href="list.html" class="text-[#fea619] font-bold text-sm flex items-center gap-1 hover:underline">Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<!-- Derniers militants ajoutés -->
+<!-- Derniers militants ajoutés (clickable) -->
 <div class="bg-gray-50 rounded-xl overflow-hidden cursor-pointer clickable-card border border-gray-100" onclick="window.location.href='list.html'">
 <div class="bg-[#003525] p-4">
 <h3 class="font-bold text-white flex items-center gap-2">
@@ -340,7 +344,7 @@ Derniers inscrits
 </div>
 </div>
 
-<!-- Carte d'objectif -->
+<!-- Carte d'objectif (clickable) -->
 <div class="bg-[#003525] text-white rounded-xl p-6 flex flex-col justify-between cursor-pointer clickable-card shadow-md" onclick="showNotification('Objectif National : 10000 Militants', 'info')">
 <div>
 <div class="flex items-center gap-2 mb-4">
@@ -359,7 +363,7 @@ Derniers inscrits
 <a href="add.html" class="mt-8 bg-white text-[#003525] py-3 rounded-xl font-bold hover:bg-[#fea619] hover:text-white transition-colors text-center block">Ajouter un militant</a>
 </div>
 
-<!-- Statistiques rapides -->
+<!-- Statistiques rapides (clickable) -->
 <div class="bg-gray-50 rounded-xl p-6 cursor-pointer clickable-card border border-gray-100" onclick="showComingSoon()">
 <h3 class="font-bold text-[#003525] mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined">analytics</span>
@@ -404,12 +408,10 @@ Statistiques
         orderBy, 
         limit,
         where,
-        Timestamp,
-        deleteDoc,
-        doc
+        Timestamp
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
+    // Configuration Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyANFTV1IIKeMi9FXUCm7824wybRiESuO9U",
         authDomain: "militant-eed81.firebaseapp.com",
@@ -421,123 +423,43 @@ Statistiques
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
-    
-    // Vérifier si admin est connecté
-    const currentUser = sessionStorage.getItem('user');
-    if (!currentUser) {
-        window.location.href = 'login_simple.html';
-    } else {
-        const user = JSON.parse(currentUser);
-        if (user.role !== 'administrateur') {
-            window.location.href = 'dashboard_user.html';
-        }
-        document.getElementById('adminName').textContent = user.fullName || user.username;
-    }
     
     let totalMilitants = 0;
     let nouveauxMois = 0;
     let derniersMilitants = [];
-    let allUsers = [];
+    let topQuartierData = null;
     
+    // Formater la date Firebase
     function formatDate(date) {
         if (!date) return '';
-        if (date instanceof Timestamp) return date.toDate();
+        if (date instanceof Timestamp) {
+            return date.toDate();
+        }
         return date;
     }
     
+    // Obtenir le début du mois
     function getStartOfMonth() {
         const now = new Date();
         return new Date(now.getFullYear(), now.getMonth(), 1);
     }
     
-    // Charger les utilisateurs
-    async function loadUsers() {
-        try {
-            const usersRef = collection(db, 'users');
-            const snapshot = await getDocs(usersRef);
-            allUsers = [];
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                allUsers.push({
-                    id: doc.id,
-                    fullName: data.fullName || '',
-                    username: data.username || '',
-                    phone: data.phone || '',
-                    role: data.role || 'lecteur',
-                    createdAt: data.createdAt,
-                    isActive: data.isActive !== false
-                });
-            });
-            
-            document.getElementById('totalUsers').textContent = allUsers.length;
-            displayUsers();
-        } catch (error) {
-            console.error('Erreur chargement utilisateurs:', error);
-        }
-    }
-    
-    // Afficher les utilisateurs dans le tableau
-    function displayUsers() {
-        const tbody = document.getElementById('usersTableBody');
-        if (allUsers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-400">Aucun utilisateur trouvé</td></tr>';
-            return;
-        }
-        
-        tbody.innerHTML = allUsers.map(user => `
-            <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                <td class="p-3">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-[#fea619]/20 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[#fea619] text-sm">person</span>
-                        </div>
-                        <span class="font-medium text-[#003525]">${escapeHtml(user.username)}</span>
-                    </div>
-                </td>
-                <td class="p-3 text-gray-600">${escapeHtml(user.fullName)}</td>
-                <td class="p-3 text-gray-600">${escapeHtml(user.phone) || '—'}</td>
-                <td class="p-3">
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold ${user.role === 'administrateur' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">
-                        ${user.role === 'administrateur' ? '👑 Admin' : '👤 Lecteur'}
-                    </span>
-                </td>
-                <td class="p-3 text-gray-400 text-sm">${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString('fr-FR') : '—'}</td>
-                <td class="p-3 text-center">
-                    <button onclick="deleteUser('${user.id}', '${user.username}')" class="text-red-500 hover:text-red-700 transition" title="Supprimer">
-                        <span class="material-symbols-outlined text-sm">delete</span>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    }
-    
-    // Supprimer un utilisateur
-    window.deleteUser = async function(userId, username) {
-        if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${username}" ?`)) {
-            try {
-                await deleteDoc(doc(db, "users", userId));
-                showNotification(`✅ Utilisateur "${username}" supprimé`, 'success');
-                loadUsers();
-            } catch (error) {
-                console.error('Erreur suppression:', error);
-                showNotification('❌ Erreur lors de la suppression', 'error');
-            }
-        }
-    };
-    
-    // Charger les données des militants
+    // Charger toutes les données
     async function loadDashboardData() {
         try {
             const militantsRef = collection(db, 'militants');
+            
+            // 1. Total des militants
             const allSnapshot = await getDocs(militantsRef);
             totalMilitants = allSnapshot.size;
             
+            // 2. Nouveaux du mois
             const debutMois = getStartOfMonth();
             const moisQuery = query(militantsRef, where('date_inscription', '>=', debutMois));
             const moisSnapshot = await getDocs(moisQuery);
             nouveauxMois = moisSnapshot.size;
             
+            // 3. Quartier le plus actif
             const quartierMap = new Map();
             allSnapshot.forEach(doc => {
                 const data = doc.data();
@@ -555,7 +477,9 @@ Statistiques
                     topQuartier = quartier;
                 }
             }
+            topQuartierData = topQuartier;
             
+            // 4. Derniers militants (5 derniers)
             const derniersQuery = query(militantsRef, orderBy('date_inscription', 'desc'), limit(5));
             const derniersSnapshot = await getDocs(derniersQuery);
             derniersMilitants = [];
@@ -569,7 +493,8 @@ Statistiques
                 });
             });
             
-            updateUI(topQuartier);
+            // Mettre à jour l'interface
+            updateUI();
             
         } catch (error) {
             console.error('Erreur chargement:', error);
@@ -577,33 +502,40 @@ Statistiques
         }
     }
     
-    function updateUI(topQuartierData) {
+    // Mettre à jour l'interface
+    function updateUI() {
+        // Statistiques principales
         document.getElementById('totalMilitants').textContent = totalMilitants;
         document.getElementById('nouveauxMois').textContent = nouveauxMois;
+        document.getElementById('topQuartier').textContent = topQuartierData || '—';
         
         const progression = Math.min(100, Math.round((totalMilitants / 10000) * 100));
         document.getElementById('tauxProgression').textContent = `${progression}%`;
         
+        // Ticker
         const tickerContent = document.getElementById('tickerContent');
         tickerContent.innerHTML = `
             <span class="ticker__item">🎉 ${totalMilitants} militants enregistrés •</span>
             <span class="ticker__item">✨ +${nouveauxMois} nouveaux ce mois-ci •</span>
             <span class="ticker__item">📍 ${topQuartierData ? topQuartierData + ' est le quartier le plus actif' : 'Aucun quartier enregistré'} •</span>
-            <span class="ticker__item">👥 ${allUsers.length} utilisateurs inscrits •</span>
+            <span class="ticker__item">📱 Application mobile disponible •</span>
             <span class="ticker__item">🤝 Ensemble, construisons l'avenir •</span>
         `;
         
+        // Barre de progression objectif
         const progressPercent = (totalMilitants / 10000) * 100;
         const percentValue = Math.min(100, progressPercent);
         document.getElementById('progressBar').style.width = `${percentValue}%`;
         document.getElementById('progressCurrent').textContent = `${totalMilitants.toLocaleString()} / 10 000`;
         document.getElementById('progressPercent').textContent = `${Math.round(percentValue)}%`;
         
+        // Statistiques secondaires
         document.getElementById('statTotal').textContent = totalMilitants;
         document.getElementById('statBar').style.width = `${Math.min(100, (totalMilitants / 10000) * 100)}%`;
         document.getElementById('statCroissance').textContent = `+${nouveauxMois}`;
         document.getElementById('statCroissanceBar').style.width = `${Math.min(100, (nouveauxMois / 50) * 100)}%`;
         
+        // Derniers militants
         const derniersContainer = document.getElementById('derniersMilitants');
         if (derniersMilitants.length > 0) {
             derniersContainer.innerHTML = derniersMilitants.map(m => {
@@ -625,11 +557,18 @@ Statistiques
         }
     }
     
+    // Échapper les caractères HTML
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
     
+    // Afficher notification
     window.showNotification = function(message, type) {
         const notif = document.getElementById('floatingNotification');
         notif.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-blue-50', 'border-green-200', 'border-red-200', 'border-blue-200', 'text-green-800', 'text-red-800', 'text-blue-800');
@@ -645,22 +584,18 @@ Statistiques
             notif.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined">error</span><span>${message}</span></div>`;
         }
         
-        setTimeout(() => notif.classList.add('hidden'), 4000);
+        setTimeout(() => {
+            notif.classList.add('hidden');
+        }, 4000);
     };
     
+    // Fonction pour les fonctionnalités à venir
     window.showComingSoon = function() {
         showNotification('🚀 Fonctionnalité bientôt disponible !', 'info');
     };
     
-    window.logout = async function() {
-        await signOut(auth);
-        sessionStorage.removeItem('user');
-        window.location.href = 'login_simple.html';
-    };
-    
+    // Charger les données au démarrage
     loadDashboardData();
-    loadUsers();
 </script>
 
-</body>
-                  </html>
+</body></html>
