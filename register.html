@@ -175,7 +175,7 @@
     const currentUser = sessionStorage.getItem('user');
     let isCurrentUserAdmin = false;
     
-  //  async function verifierAccesAdmin() {
+   async function verifierAccesAdmin() {
         if (currentUser) {
             try {
                 const userData = JSON.parse(currentUser);
