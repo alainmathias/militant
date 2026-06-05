@@ -51,6 +51,14 @@
       transform: scale(1.05);
       box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2);
     }
+    .service-badge {
+      transition: all 0.3s ease;
+    }
+    .service-badge:hover {
+      transform: translateY(-2px);
+      background-color: #e67e22;
+      color: white;
+    }
   </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -120,10 +128,10 @@
           <i class="fas fa-bars text-primary"></i>
         </button>
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-accent rounded-lg flex items-left justify-center">
-            <i class="fas fa-handshake text-primary  text-sm"></i>
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <i class="fas fa-handshake text-primary text-sm"></i>
           </div>
-          <span class="font-bold text-2xl text-primary">ASSIKI SERVICES</span>
+          <span class="font-bold text-xl text-primary">ASSIKI SERVICES</span>
         </div>
         <div class="w-10"></div>
       </div>
@@ -132,33 +140,80 @@
       <div class="p-4 md:p-6">
         
         <!-- Titre principal -->
-        <div class="mb-6">
-        <p class="font-bold text-accent justify-center text-ysm mt-1">Agence de placement de personnels de maisons -  Bureaux -  Gestion des locations - Démarche etc...</p>
+        <div class="mb-4">
+          <h1 class="text-2xl md:text-3xl font-bold text-primary">ASSIKI SERVICES</h1>
+          <p class="text-gray-600 text-sm mt-1">Agence de placement de personnel - Maisons, Bureaux, Événements</p>
+          <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500">
+            <span><i class="fas fa-building mr-1 text-accent"></i>RCCM: RB/COT/18A 3859</span>
+            <span><i class="fas fa-id-card mr-1 text-accent"></i>IFU: 0201810318698</span>
+          </div>
+        </div>
+
+        <!-- ========== SECTION SERVICES OFFERTS ========== -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-star text-accent"></i> SERVICES OFFERTS
+          </h3>
+          <div class="flex flex-wrap gap-3">
+            <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-broom mr-2 text-accent"></i>Ménagère</span>
+            <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-child mr-2 text-accent"></i>Baby-sitters</span>
+            <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-hand-sparkles mr-2 text-accent"></i>Nourrices</span>
+            <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-tree mr-2 text-accent"></i>Entretiens</span>
+            <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-car mr-2 text-accent"></i>Chauffeurs</span>
+            <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-seedling mr-2 text-accent"></i>Fleuristes</span>
+          </div>
+        </div>
+
+        <!-- ========== AUTRES SERVICES ========== -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-cogs text-accent"></i> AUTRES SERVICES
+          </h3>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div class="bg-white rounded-xl p-3 text-center shadow-sm">
+              <i class="fas fa-graduation-cap text-accent text-xl mb-2"></i>
+              <p class="text-sm font-semibold">Formation</p>
+            </div>
+            <div class="bg-white rounded-xl p-3 text-center shadow-sm">
+              <i class="fas fa-tshirt text-accent text-xl mb-2"></i>
+              <p class="text-sm font-semibold">Vente de tenues de travail</p>
+            </div>
+            <div class="bg-white rounded-xl p-3 text-center shadow-sm">
+              <i class="fas fa-flask text-accent text-xl mb-2"></i>
+              <p class="text-sm font-semibold">Produits de néotype</p>
+            </div>
+          </div>
         </div>
 
         <!-- Carte de bienvenue -->
-        
-              <section class="relative overflow-hidden rounded-xl mb-8 bg-primary-container min-h-[220px] flex flex-col justify-end">
-  <!-- Conteneur image avec overflow caché -->
-  <div class="absolute inset-0 z-0 overflow-hidden rounded-xl">
-    <img class="w-full h-full object-cover" alt="abstract ar6chitectural details" src="img/IMG-20260523-WA0045y.png"/>
-<!--    <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-transparent"></div>
-  </div>
-  
-  <div class="relative z-10 p-8">
-    <p class="text-white/80 font-label text-[13px] uppercase tracking-[0.2em] mb-2">TABLEAU DE BORD</p>
-    <h2 class="text-display-sm font-headline text-3xl font-extrabold text-white leading-tight">
-      Bienvenue, <span class="text-accent" id="userName">Administrateur</span>.
-    </h2>
-    <p class="text-white/70 mt-2 max-w-md text-sm">La gestion minutieuse des effectifs à la base est la force de l'organisation.</p>
-  </div>-->
-              </section>
+        <section class="relative overflow-hidden rounded-xl mb-8 bg-primary min-h-[180px] flex flex-col justify-end">
+          <div class="absolute inset-0 z-0 overflow-hidden rounded-xl">
+            <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-transparent"></div>
+          </div>
+          <div class="relative z-10 p-6">
+            <p class="text-white/80 text-[13px] uppercase tracking-wider mb-2">TABLEAU DE BORD</p>
+            <h2 class="text-2xl font-extrabold text-white">
+              Bienvenue, <span class="text-accent">Administrateur</span>.
+            </h2>
+            <p class="text-white/70 mt-2 max-w-md text-sm">La gestion minutieuse des effectifs à la base est la force de l'organisation.</p>
+          </div>
+        </section>
 
         <!-- ========== SECTION "J'AI BESOIN DE" ========== -->
         <div class="mb-8">
           <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-hand-point-right text-accent"></i> J'AI BESOIN DE
+            <i class="fas fa-hand-point-right text-accent"></i> AVEZ-VOUS BESOIN ?
           </h3>
+          <div class="bg-white rounded-2xl p-5 shadow-sm mb-4">
+            <p class="text-gray-700 text-center mb-3">
+              <i class="fas fa-question-circle text-accent mr-2"></i>
+              d'une ménagère ou autres ... ?
+            </p>
+            <p class="text-gray-700 text-center">
+              <i class="fas fa-briefcase text-accent mr-2"></i>
+              d'un travail de maison ou autres ... ?
+            </p>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <a href="#" id="personnelBtn" class="bg-white rounded-2xl p-6 text-center shadow-sm btn-service border-2 border-transparent hover:border-accent">
               <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -174,6 +229,44 @@
               <h4 class="font-bold text-gray-800 text-lg">Travail ou jobs</h4>
               <p class="text-gray-500 text-xs mt-1">Trouver du travail</p>
             </a>
+          </div>
+        </div>
+
+        <!-- ========== CONTACTS ========== -->
+        <div class="mb-8 bg-white rounded-2xl p-5 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+            <i class="fas fa-phone-alt text-accent"></i> CONTACTS
+          </h3>
+          <div class="space-y-2">
+            <a href="tel:+2290197022623" class="flex items-center gap-3 text-gray-700 hover:text-accent transition">
+              <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+              <span>+229 0197022623</span>
+            </a>
+            <a href="tel:+2290144014010" class="flex items-center gap-3 text-gray-700 hover:text-accent transition">
+              <i class="fas fa-phone-alt text-accent text-xl"></i>
+              <span>+229 0144014010</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- ========== POURQUOI TRAVAILLER AVEC NOUS ========== -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-question-circle text-accent"></i> POURQUOI TRAVAILLER AVEC NOUS ?
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <i class="fas fa-check-circle text-accent text-2xl mb-2"></i>
+              <p class="text-sm font-semibold">Processus de recrutement efficace</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <i class="fas fa-graduation-cap text-accent text-2xl mb-2"></i>
+              <p class="text-sm font-semibold">Personnel bien formé</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <i class="fas fa-headset text-accent text-2xl mb-2"></i>
+              <p class="text-sm font-semibold">Équipe disponible et à l'écoute</p>
+            </div>
           </div>
         </div>
 
@@ -372,4 +465,4 @@
     displayRecentOffres();
   </script>
 </body>
-    </html>    
+</html>
