@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <!-- Swiper JS CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <script>
     tailwind.config = {
       theme: {
@@ -58,6 +60,21 @@
       transform: translateY(-2px);
       background-color: #e67e22;
       color: white;
+    }
+    /* Style pour le carrousel */
+    .swiper-slide {
+      text-align: center;
+      padding: 10px;
+    }
+    .service-img-card {
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .service-img-card:hover {
+      transform: translateY(-5px);
     }
   </style>
 </head>
@@ -141,37 +158,92 @@
         
         <!-- Titre principal -->
         <div class="mb-4">
-         <center>
- <p class="font-bold text-accent justify-center text-ysm mt-1">Agence de placement de personnels de maisons -  Bureaux -  Gestion des locations - Démarche etc...</p></cebter>
+          <center>
+            <p class="font-bold text-accent justify-center text-sm mt-1">Agence de placement de personnels de maisons - Bureaux - Gestion des locations - Démarche etc...</p>
+          </center>
           <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-500">
-            <span class="bg-blue-900 p-2 text-white "><i class="fas fa-building mr-1 text-white  "></i>RCCM: RB/COT/18A 3859</span>
-<span class="p-2"><i class="fas fa-id-card mr-1 text-accent"></i>IFU: 0201810318698</span>
+            <span class="bg-blue-900 p-2 text-white"><i class="fas fa-building mr-1 text-white"></i>RCCM: RB/COT/18A 3859</span>
+            <span class="p-2"><i class="fas fa-id-card mr-1 text-accent"></i>IFU: 0201810318698</span>
           </div>
         </div>
 
+        <!-- Section image de fond (commentée mais conservée) -->
+        <section class="relative overflow-hidden rounded-xl mb-8 bg-primary-container min-h-[220px] flex flex-col justify-end">
+          <div class="absolute inset-0 z-0 overflow-hidden rounded-xl">
+            <img class="w-full h-full object-cover" alt="abstract architectural details" src="img/IMG-20260523-WA0045y.png"/>
+          </div>
+        </section>
 
-<section class="relative overflow-hidden rounded-xl mb-8 bg-primary-container min-h-[220px] flex flex-col justify-end">
-  <!-- Conteneur image avec overflow caché -->
-  <div class="absolute inset-0 z-0 overflow-hidden rounded-xl">
-    <img class="w-full h-full object-cover" alt="abstract ar6chitectural details" src="img/IMG-20260523-WA0045y.png"/>
-<!--    <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-transparent"></div>
-  </div>
-  
-  <div class="relative z-10 p-8">
-    <p class="text-white/80 font-label text-[13px] uppercase tracking-[0.2em] mb-2">TABLEAU DE BORD</p>
-    <h2 class="text-display-sm font-headline text-3xl font-extrabold text-white leading-tight">
-      Bienvenue, <span class="text-accent" id="userName">Administrateur</span>.
-    </h2>
-    <p class="text-white/70 mt-2 max-w-md text-sm">La gestion minutieuse des effectifs à la base est la force de l'organisation.</p>
-  </div>-->
-              </section>
-
-
-        <!-- ========== SECTION SERVICES OFFERTS ========== -->
+        <!-- ========== SECTION SERVICES OFFERTS AVEC CARROUSEL ========== -->
         <div class="mb-8">
           <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <i class="fas fa-star text-accent"></i> SERVICES OFFERTS
           </h3>
+
+          <!-- Swiper Carrousel -->
+          <div class="swiper mySwiper mb-6">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
+                <div class="service-img-card">
+                  <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=200&fit=crop" alt="Ménagère" class="w-full h-40 object-cover">
+                  <div class="p-3">
+                    <p class="font-semibold text-primary">Ménagère</p>
+                    <p class="text-xs text-gray-500">Entretien de maison</p>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="service-img-card">
+                  <img src="https://images.unsplash.com/photo-1544717305-38f314f0a902?w=300&h=200&fit=crop" alt="Baby-sitter" class="w-full h-40 object-cover">
+                  <div class="p-3">
+                    <p class="font-semibold text-primary">Baby-sitter</p>
+                    <p class="text-xs text-gray-500">Garde d'enfants</p>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="service-img-card">
+                  <img src="https://images.unsplash.com/photo-1570125909232-263263f9a6e0?w=300&h=200&fit=crop" alt="Nourrice" class="w-full h-40 object-cover">
+                  <div class="p-3">
+                    <p class="font-semibold text-primary">Nourrice</p>
+                    <p class="text-xs text-gray-500">Soins des tout-petits</p>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="service-img-card">
+                  <img src="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=300&h=200&fit=crop" alt="Entretien" class="w-full h-40 object-cover">
+                  <div class="p-3">
+                    <p class="font-semibold text-primary">Entretien</p>
+                    <p class="text-xs text-gray-500">Nettoyage bureaux</p>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="service-img-card">
+                  <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=300&h=200&fit=crop" alt="Chauffeur" class="w-full h-40 object-cover">
+                  <div class="p-3">
+                    <p class="font-semibold text-primary">Chauffeur</p>
+                    <p class="text-xs text-gray-500">Transport privé</p>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="service-img-card">
+                  <img src="https://images.unsplash.com/photo-1563927489504-46e903c6fadd?w=300&h=200&fit=crop" alt="Fleuriste" class="w-full h-40 object-cover">
+                  <div class="p-3">
+                    <p class="font-semibold text-primary">Fleuriste</p>
+                    <p class="text-xs text-gray-500">Décoration florale</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Pagination et navigation -->
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next !text-accent"></div>
+            <div class="swiper-button-prev !text-accent"></div>
+          </div>
+
           <div class="flex flex-wrap gap-3">
             <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-broom mr-2 text-accent"></i>Ménagère</span>
             <span class="service-badge px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-sm"><i class="fas fa-child mr-2 text-accent"></i>Baby-sitters</span>
@@ -187,7 +259,7 @@
           <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <i class="fas fa-cogs text-accent"></i> AUTRES SERVICES
           </h3>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="bg-white rounded-xl p-3 text-center shadow-sm">
               <i class="fas fa-graduation-cap text-accent text-xl mb-2"></i>
               <p class="text-sm font-semibold">Formation</p>
@@ -200,14 +272,12 @@
               <i class="fas fa-flask text-accent text-xl mb-2"></i>
               <p class="text-sm font-semibold">Produits de néotype</p>
             </div>
-        <div class="bg-white rounded-xl p-3 text-center shadow-sm">
+            <div class="bg-white rounded-xl p-3 text-center shadow-sm">
               <i class="fas fa-motorcycle text-accent text-xl mb-2"></i>
-              <p class="text-sm font-semibold">Livraison </p>
+              <p class="text-sm font-semibold">Livraison</p>
             </div>
           </div>
         </div>
-
-
 
         <!-- ========== SECTION "J'AI BESOIN DE" ========== -->
         <div class="mb-8">
@@ -231,22 +301,19 @@
               </div>
               <h4 class="font-bold text-gray-800 text-lg">PERSONNEL</h4>
               <p class="text-gray-500 text-xs mt-1">Recruter du personnel</p>
-                     <a href="" id="inscriptionCandidatBtn" class="bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg btn-service">
-            <i class="fas fa-file-whatsapp mr-2"></i> Cliquez ici
-          </a>
-
- </div>
+              <a href="https://wa.me/2290197022623?text=Bonjour%2C%20je%20souhaite%20recruter%20du%20personnel" class="bg-green-500 text-white py-3 px-4 rounded-2xl font-bold shadow-lg btn-service inline-block mt-3">
+                <i class="fab fa-whatsapp mr-2"></i> Cliquez ici
+              </a>
+            </div>
             <div class="bg-white rounded-2xl p-6 text-center shadow-sm btn-service border-2 border-transparent hover:border-accent">
               <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-3">
                 <i class="fas fa-briefcase text-2xl text-accent"></i>
               </div>
               <h4 class="font-bold text-gray-800 text-lg">Travail ou jobs</h4>
               <p class="text-gray-500 text-xs mt-1">Trouver du travail</p>
-          <a href="" id="inscriptionCandidatBtn" class="bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg btn-service">
-            <i class="fas fa-file-whatsapp mr-2"></i> Cliquez ici
-          </a>
-        </div>
-
+              <a href="https://wa.me/2290197022623?text=Bonjour%2C%20je%20suis%20à%20la%20recherche%20d%27un%20emploi" class="bg-green-500 text-white py-3 px-4 rounded-2xl font-bold shadow-lg btn-service inline-block mt-3">
+                <i class="fab fa-whatsapp mr-2"></i> Cliquez ici
+              </a>
             </div>
           </div>
         </div>
@@ -256,23 +323,21 @@
           <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
             <i class="fas fa-phone-alt text-accent"></i> CONTACTS
           </h3>
-          <div class="space-y-2">
-            <span class="flex items-center gap-3 text-gray-700 hover:text-accent transition">
-           <a href="tel:+2290197022623" class="flex items-center gap-3 text-gray-700 hover:text-accent transition">   <i class="fab fa-whatsapp text-green-500 text-xl"></i></a>
-
-   <a href="tel:+2290197022623" class="flex items-center gap-3 text-gray-700 hover:text-accent transition">   <i class="fas fa-phone-alt text-accent text-xl"></i></a>
-              <span>+229 0197022623</span>
-            </span>
-            <a hre
-
-
-<span class="flex items-center gap-3 text-gray-700 hover:text-accent transition">
-       <a href="tel:+2290144014010" class="flex items-center gap-3 text-gray-700 hover:text-accent transition">   <i class="fab fa-whatsapp text-green-500 text-xl"></i></a>
-
- <a href="tel:+2290144014010" class="flex items-center gap-3 text-gray-700 hover:text-accent transition">   <i class="fas fa-phone-alt text-accent text-xl"></i></a>
-              
-              <span>+229 0144014010</span>
-            </span>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 flex-wrap">
+              <a href="https://wa.me/2290197022623" class="flex items-center gap-2 text-gray-700 hover:text-accent transition">
+                <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+                <i class="fas fa-phone-alt text-accent text-xl"></i>
+              </a>
+              <a href="tel:+2290197022623" class="text-gray-700 hover:text-accent">+229 0197022623</a>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <a href="https://wa.me/2290144014010" class="flex items-center gap-2 text-gray-700 hover:text-accent transition">
+                <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+                <i class="fas fa-phone-alt text-accent text-xl"></i>
+              </a>
+              <a href="tel:+2290144014010" class="text-gray-700 hover:text-accent">+229 0144014010</a>
+            </div>
           </div>
         </div>
 
@@ -282,22 +347,17 @@
             <i class="fas fa-question-circle text-accent"></i> POURQUOI TRAVAILLER AVEC NOUS ?
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white rounded-xl p-4 text-center6 shadow-sm">
-               <p class="text-sm font-semibold">  <i class="fas fa-check-circle text-accent text-2xl mb-2"></i>
-           Processus de recrutement efficace</p>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <p class="text-sm font-semibold"><i class="fas fa-check-circle text-accent text-2xl mb-2 block"></i>Processus de recrutement efficace</p>
             </div>
-            <div class="bg-white rounded-xl p-4 text-center6 shadow-sm">
-                   <p class="text-sm font-semibold"> <i class="fas fa-graduation-cap text-accent text-2xl mb-2"></i>
-        Personnel bien formé</p>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <p class="text-sm font-semibold"><i class="fas fa-graduation-cap text-accent text-2xl mb-2 block"></i>Personnel bien formé</p>
             </div>
-            <div class="bg-white rounded-xl p-4 text-center6 shadow-sm">
-                 <p class="text-sm font-semibold"><i class="fas fa-headset text-accent text-2xl mb-2"></i>
-              Équipe disponible et à l'écoute</p>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <p class="text-sm font-semibold"><i class="fas fa-headset text-accent text-2xl mb-2 block"></i>Équipe disponible et à l'écoute</p>
             </div>
           </div>
         </div>
-
-    
 
         <!-- ========== BOUTON VOIR LES OFFRES ========== -->
         <div class="mb-8">
@@ -372,7 +432,32 @@
     </div>
   </div>
 
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
+    // Initialisation du carrousel Swiper
+    const swiper = new Swiper('.mySwiper', {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      breakpoints: {
+        640: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+      },
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+      },
+      loop: true,
+    });
+
     // ========== DONNÉES SIMULÉES ==========
     let offres = [
       { id: 1, titre: "Ménagère expérimentée", zone: "Cotonou", salaire: "50 000 FCFA", statut: "Urgent", date: "2025-06-01" },
@@ -440,25 +525,6 @@
       if (!str) return '';
       return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
-
-    // Navigation
-    document.getElementById("personnelBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("📢 Formulaire de recrutement - À venir\nVous pourrez bientôt publier vos offres d'emploi ici !");
-    });
-
-    document.getElementById("travailBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("👤 Recherche d'emploi - À venir\nDéposez votre CV et trouvez le job qui vous correspond !");
-    });
-
-    document.getElementById("inscriptionPersonnelBtn")?.addEventListener("click", () => {
-      alert("📝 Inscription recruteur - À venir\nCréez votre compte pour publier vos offres !");
-    });
-
-    document.getElementById("inscriptionCandidatBtn")?.addEventListener("click", () => {
-      alert("📝 Inscription candidat - À venir\nCréez votre profil pour postuler aux offres !");
-    });
 
     document.getElementById("voirOffresBtn")?.addEventListener("click", () => {
       alert("📢 Voici nos offres disponibles !\n" + offres.map(o => `- ${o.titre} (${o.zone})`).join("\n"));
