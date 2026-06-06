@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ASSIKI SERVICES - Recherche de personnel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1a4a6f',
+            secondary: '#0f2b3d',
+            accent: '#e67e22',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #f3f4f6; }
+    .btn-submit { transition: all 0.3s ease; }
+    .btn-submit:hover { transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.15); }
+  </style>
+</head>
+<body class="font-sans">
+
+  <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary to-secondary p-5 text-white">
+      <div class="flex items-center gap-3 mb-2">
+        <i class="fas fa-handshake text-2xl text-accent"></i>
+        <h1 class="text-xl font-bold">ASSIKI SERVICES</h1>
+      </div>
+      <p class="text-white/80 text-sm">Recherche de personnel</p>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="p-5">
+      <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="fas fa-user-plus text-accent"></i> Formulaire de recherche
+      </h2>
+      <p class="text-gray-500 text-sm mb-5">Remplissez ce formulaire pour publier votre besoin de personnel</p>
+
+      <form id="formRecruteur" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nom et prénom *</label>
+          <input type="text" id="nom" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Ex: Jean ADJANOHOUN">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu du travail *</label>
+          <input type="text" id="lieu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent" placeholder="Ex: Cotonou, Calavi, Porto-Novo...">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone / WhatsApp *</label>
+          <input type="tel" id="telephone" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent" placeholder="Ex: 229XXXXXXXX">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Type de personnel recherché *</label>
+          <select id="type" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent">
+            <option value="">-- Sélectionnez --</option>
+            <option>Ménagère</option>
+            <option>Baby-sitter</option>
+            <option>Nourrice</option>
+            <option>Chauffeur</option>
+            <option>Entretien</option>
+            <option>Fleuriste</option>
+            <option>Autre</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Tranche d'âge</label>
+          <select id="age" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+            <option value="">-- Optionnel --</option>
+            <option>18-25 ans</option>
+            <option>26-35 ans</option>
+            <option>36-45 ans</option>
+            <option>46-55 ans</option>
+            <option>55 ans et +</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Ethnie (facultatif)</label>
+          <select id="ethnie" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+            <option value="">-- Optionnel --</option>
+            <option>Adja</option>
+            <option>Fon</option>
+            <option>Goun</option>
+            <option>Yoruba</option>
+            <option>Bariba</option>
+            <option>Dendi</option>
+            <option>Peulh</option>
+            <option>Autre</option>
+          </select>
+        </div>
+
+        <button type="submit" class="w-full bg-accent text-white py-3 rounded-xl font-bold shadow-lg btn-submit mt-4">
+          <i class="fas fa-paper-plane mr-2"></i> PUBLIER MA DEMANDE
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <a href="demandes.html" class="text-accent text-sm font-semibold">
+          <i class="fas fa-eye mr-1"></i> Voir les demandes publiées
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-100 p-4 text-center text-gray-500 text-xs">
+      <p>© 2025 ASSIKI SERVICES - Agence de placement</p>
+    </div>
+  </div>
+
+  <script>
+    // Stockage dans localStorage
+    const STORAGE_KEY = "assiki_demandes";
+
+    function getDemandes() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    }
+
+    function saveDemandes(demandes) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(demandes));
+    }
+
+    document.getElementById("formRecruteur").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const nouvelleDemande = {
+        id: Date.now(),
+        nom: document.getElementById("nom").value,
+        lieu: document.getElementById("lieu").value,
+        telephone: document.getElementById("telephone").value,
+        type: document.getElementById("type").value,
+        age: document.getElementById("age").value,
+        ethnie: document.getElementById("ethnie").value,
+        date: new Date().toISOString()
+      };
+
+      if (!nouvelleDemande.nom || !nouvelleDemande.lieu || !nouvelleDemande.telephone || !nouvelleDemande.type) {
+        alert("Veuillez remplir tous les champs obligatoires (*)");
+        return;
+      }
+
+      const demandes = getDemandes();
+      demandes.unshift(nouvelleDemande);
+      saveDemandes(demandes);
+
+      alert("✅ Votre demande a été publiée ! Un candidat vous contactera bientôt.");
+      this.reset();
+
+      // Redirection vers la page des demandes
+      window.location.href = "demandes.html";
+    });
+  </script>
+</body>
+</html>
