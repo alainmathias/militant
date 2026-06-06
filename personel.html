@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ASSIKI SERVICES - Demandes de personnel</title>
+  <title>ASSIKI SERVICES - Recrutement personnel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <script>
@@ -21,8 +21,8 @@
   </script>
   <style>
     body { background: #f3f4f6; }
-    .demande-card { transition: all 0.3s ease; }
-    .demande-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+    .btn-submit { transition: all 0.3s ease; }
+    .btn-submit:hover { transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.15); }
   </style>
 </head>
 <body class="font-sans">
@@ -35,123 +35,144 @@
         <i class="fas fa-handshake text-2xl text-accent"></i>
         <h1 class="text-xl font-bold">ASSIKI SERVICES</h1>
       </div>
-      <p class="text-white/80 text-sm">Demandes de personnel</p>
+      <p class="text-white/80 text-sm">Recrutement de personnel</p>
     </div>
 
-    <!-- Liste des demandes -->
+    <!-- Formulaire -->
     <div class="p-5">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-          <i class="fas fa-list text-accent"></i> Demandes récentes
-        </h2>
-        <a href="recruteur.html" class="bg-accent text-white px-3 py-1.5 rounded-xl text-sm font-semibold">
-          <i class="fas fa-plus mr-1"></i> Publier
+      <div class="flex gap-3 mb-5">
+        <a href="recruteur-personnel.html" class="flex-1 bg-accent text-white py-2 rounded-xl text-center font-bold text-sm">👤 Personnel</a>
+        <a href="recruteur-job.html" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-xl text-center font-bold text-sm">💼 Offre d'emploi</a>
+      </div>
+
+      <h2 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+        <i class="fas fa-user-plus text-accent"></i> Je cherche du personnel
+      </h2>
+      <p class="text-gray-500 text-sm mb-5">Vous avez besoin d'une ménagère, d'un chauffeur, etc. ? Publiez votre besoin</p>
+
+      <form id="formRecruteurPersonnel" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nom et prénom *</label>
+          <input type="text" id="nom" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent" placeholder="Ex: Jean ADJANOHOUN">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu du travail *</label>
+          <input type="text" id="lieu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Cotonou, Calavi, Porto-Novo...">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone / WhatsApp *</label>
+          <input type="tel" id="telephone" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 229XXXXXXXX">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Type de personnel recherché *</label>
+          <select id="type" required class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+            <option value="">-- Sélectionnez --</option>
+            <option>Ménagère</option>
+            <option>Baby-sitter</option>
+            <option>Nourrice</option>
+            <option>Chauffeur</option>
+            <option>Entretien</option>
+            <option>Fleuriste</option>
+            <option>Jardinier</option>
+            <option>Gardien</option>
+            <option>Cuisinier</option>
+            <option>Autre</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Tranche d'âge</label>
+            <select id="age" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+              <option value="">-- Optionnel --</option>
+              <option>18-25 ans</option>
+              <option>26-35 ans</option>
+              <option>36-45 ans</option>
+              <option>46-55 ans</option>
+              <option>55 ans et +</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Ethnie (facultatif)</label>
+            <select id="ethnie" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+              <option value="">-- Optionnel --</option>
+              <option>Adja</option>
+              <option>Fon</option>
+              <option>Goun</option>
+              <option>Yoruba</option>
+              <option>Bariba</option>
+              <option>Dendi</option>
+              <option>Peulh</option>
+              <option>Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Description du poste / Tâches</label>
+          <textarea id="description" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Décrivez les tâches, horaires, conditions..."></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-accent text-white py-3 rounded-xl font-bold shadow-lg btn-submit mt-4">
+          <i class="fas fa-paper-plane mr-2"></i> PUBLIER MA DEMANDE
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <a href="demandes-personnel.html" class="text-accent text-sm font-semibold">
+          <i class="fas fa-eye mr-1"></i> Voir les demandes de personnel
         </a>
       </div>
-
-      <div id="demandesList" class="space-y-4">
-        <div class="text-center py-8 text-gray-400">
-          <i class="fas fa-spinner fa-spin"></i> Chargement...
-        </div>
-      </div>
     </div>
 
-    <!-- Footer -->
     <div class="bg-gray-100 p-4 text-center text-gray-500 text-xs">
       <p>© 2025 ASSIKI SERVICES - Agence de placement</p>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "assiki_demandes";
+    const STORAGE_KEY = "assiki_demandes_personnel";
 
     function getDemandes() {
       return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     }
 
-    function formatDate(dateStr) {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('fr-FR');
+    function saveDemandes(demandes) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(demandes));
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-    }
+    document.getElementById("formRecruteurPersonnel").addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    function afficherDemandes() {
-      const container = document.getElementById("demandesList");
-      const demandes = getDemandes();
+      const nouvelleDemande = {
+        id: Date.now(),
+        typeAnnonce: "personnel",
+        nom: document.getElementById("nom").value,
+        lieu: document.getElementById("lieu").value,
+        telephone: document.getElementById("telephone").value,
+        type: document.getElementById("type").value,
+        age: document.getElementById("age").value,
+        ethnie: document.getElementById("ethnie").value,
+        description: document.getElementById("description").value,
+        date: new Date().toISOString()
+      };
 
-      if (demandes.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-10 text-gray-400">
-            <i class="fas fa-inbox text-4xl mb-3"></i>
-            <p>Aucune demande pour le moment</p>
-            <a href="recruteur.html" class="text-accent text-sm font-semibold mt-2 inline-block">Soyez le premier à publier !</a>
-          </div>
-        `;
+      if (!nouvelleDemande.nom || !nouvelleDemande.lieu || !nouvelleDemande.telephone || !nouvelleDemande.type) {
+        alert("Veuillez remplir tous les champs obligatoires (*)");
         return;
       }
 
-      container.innerHTML = demandes.map(d => `
-        <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-accent demande-card">
-          <div class="flex justify-between items-start mb-2">
-            <h3 class="font-bold text-gray-800">${escapeHtml(d.nom)}</h3>
-            <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">${formatDate(d.date)}</span>
-          </div>
-          
-          <div class="space-y-1 text-sm">
-            <p class="text-gray-600"><i class="fas fa-map-marker-alt text-accent w-5"></i> ${escapeHtml(d.lieu)}</p>
-            <p class="text-gray-600"><i class="fas fa-briefcase text-accent w-5"></i> Recherche : <span class="font-semibold">${escapeHtml(d.type)}</span></p>
-            ${d.age ? `<p class="text-gray-600"><i class="fas fa-calendar-alt text-accent w-5"></i> Âge souhaité : ${escapeHtml(d.age)}</p>` : ''}
-            ${d.ethnie ? `<p class="text-gray-600"><i class="fas fa-users text-accent w-5"></i> Ethnie : ${escapeHtml(d.ethnie)}</p>` : ''}
-          </div>
-          
-          <div class="mt-3 flex gap-2">
-            <a href="https://wa.me/${escapeHtml(d.telephone)}?text=Bonjour%2C%20je%20suis%20intéressé%20par%20votre%20offre%20pour%20${escapeHtml(d.type)}" target="_blank" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1">
-              <i class="fab fa-whatsapp"></i> Contacter
-            </a>
-            <a href="tel:${escapeHtml(d.telephone)}" class="bg-accent text-white px-3 py-1.5 rounded-lg text-sm font-semibold inline-flex items-center gap-1">
-              <i class="fas fa-phone-alt"></i> Appeler
-            </a>
-          </div>
-        </div>
-      `).join('');
-    }
+      const demandes = getDemandes();
+      demandes.unshift(nouvelleDemande);
+      saveDemandes(demandes);
 
-    // Initialiser avec des données d'exemple si vide
-    function initExempleData() {
-      let demandes = getDemandes();
-      if (demandes.length === 0) {
-        demandes = [
-          {
-            id: Date.now(),
-            nom: "Marie HOUNGBO",
-            lieu: "Cotonou - Haie Vive",
-            telephone: "22997123456",
-            type: "Ménagère",
-            age: "26-35 ans",
-            ethnie: "Fon",
-            date: new Date().toISOString()
-          },
-          {
-            id: Date.now() + 1,
-            nom: "Paul DOSSOU",
-            lieu: "Calavi - Hêvié",
-            telephone: "22997876543",
-            type: "Chauffeur",
-            age: "36-45 ans",
-            ethnie: "",
-            date: new Date().toISOString()
-          }
-        ];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(demandes));
-      }
-    }
-
-    initExempleData();
-    afficherDemandes();
+      alert("✅ Votre demande a été publiée ! Un candidat vous contactera bientôt.");
+      this.reset();
+      window.location.href = "demandes-personnel.html";
+    });
   </script>
 </body>
 </html>
