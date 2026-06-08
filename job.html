@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ASSIKI SERVICES - Offres d'emploi</title>
+  <title>ASSIKI SERVICES - Offre d'emploi</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore-compat.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -29,91 +31,73 @@
 
   <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl">
     
-    <!-- Header -->
     <div class="bg-gradient-to-r from-primary to-secondary p-5 text-white">
       <div class="flex items-center gap-3 mb-2">
         <i class="fas fa-handshake text-2xl text-accent"></i>
         <h1 class="text-xl font-bold">ASSIKI SERVICES</h1>
       </div>
-      <p class="text-white/80 text-sm">Offres d'emploi / Jobs</p>
+      <p class="text-white/80 text-sm">Offres d'emploi</p>
     </div>
 
-    <!-- Formulaire -->
     <div class="p-5">
       <div class="flex gap-3 mb-5">
-        <a href="personnel.html" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-xl text-center font-bold text-sm">👤 Personnel</a>
-        <a href="job.html" class="flex-1 bg-accent text-white py-2 rounded-xl text-center font-bold text-sm">💼 Offre d'emploi</a>
+        <a href="recruteur-personnel.html" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-xl text-center font-bold text-sm">👤 Personnel</a>
+        <a href="recruteur-job.html" class="flex-1 bg-accent text-white py-2 rounded-xl text-center font-bold text-sm">💼 Offre d'emploi</a>
       </div>
 
       <h2 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
         <i class="fas fa-briefcase text-accent"></i> Je publie une offre d'emploi
       </h2>
-      <p class="text-gray-500 text-sm mb-5">Vous cherchez à recruter un employé ? Publiez votre offre ici</p>
+      <p class="text-gray-500 text-sm mb-5">Vous cherchez à recruter ? Publiez votre offre ici</p>
 
       <form id="formRecruteurJob" class="space-y-4">
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Nom de l'entreprise / Recruteur *</label>
-          <input type="text" id="entreprise" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: ASSIKI SERVICES, Jean ADJANOHOUN...">
+          <input type="text" id="entreprise" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: ASSIKI SERVICES">
         </div>
-
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Titre du poste *</label>
-          <input type="text" id="titre" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Ménagère, Chauffeur, Baby-sitter...">
+          <input type="text" id="titre" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Ménagère, Chauffeur...">
         </div>
-
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu du travail *</label>
-          <input type="text" id="lieu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Cotonou, Calavi, Porto-Novo...">
+          <input type="text" id="lieu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Cotonou, Calavi...">
         </div>
-
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Salaire proposé</label>
-          <input type="text" id="salaire" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 50 000 - 75 000 FCFA / mois">
+          <input type="text" id="salaire" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 50 000 - 75 000 FCFA/mois">
         </div>
-
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Type de contrat</label>
           <select id="contrat" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
             <option value="">-- Sélectionnez --</option>
-            <option>CDI</option>
-            <option>CDD</option>
-            <option>Intérim</option>
-            <option>Stage</option>
-            <option>Freelance</option>
-            <option>Temps partiel</option>
-            <option>Temps plein</option>
+            <option>CDI</option><option>CDD</option><option>Intérim</option>
+            <option>Stage</option><option>Freelance</option><option>Temps partiel</option>
           </select>
         </div>
-
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Description du poste / Missions *</label>
-          <textarea id="description" rows="3" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Décrivez les missions, horaires, conditions, profils recherchés..."></textarea>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Description du poste *</label>
+          <textarea id="description" rows="3" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Décrivez les missions, horaires..."></textarea>
         </div>
-
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Profil recherché</label>
-          <textarea id="profil" rows="2" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Expérience, compétences, formation..."></textarea>
+          <textarea id="profil" rows="2" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Expérience, compétences..."></textarea>
         </div>
-
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone / WhatsApp pour postuler *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone pour postuler *</label>
           <input type="tel" id="telephone" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 229XXXXXXXX">
         </div>
-
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Email pour candidature</label>
-          <input type="email" id="email" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: recrutement@assiki.com">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Email (optionnel)</label>
+          <input type="email" id="email" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="recrutement@assiki.com">
         </div>
-
         <button type="submit" class="w-full bg-accent text-white py-3 rounded-xl font-bold shadow-lg btn-submit mt-4">
           <i class="fas fa-paper-plane mr-2"></i> PUBLIER L'OFFRE
         </button>
       </form>
 
-      <div class="mt-6 text-center">
-        <a href="demandes-job.html" class="text-accent text-sm font-semibold">
-          <i class="fas fa-eye mr-1"></i> Voir les offres d'emploi
-        </a>
+      <div class="mt-6 text-center text-xs text-gray-400">
+        <p>Votre offre sera étudiée par notre équipe</p>
       </div>
     </div>
 
@@ -123,22 +107,22 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "assiki_demandes_job";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgbEgBgsIzFfgbWm5C0zv6K0KbJOKstiY",
+      authDomain: "jobs-bda0b.firebaseapp.com",
+      projectId: "jobs-bda0b",
+      storageBucket: "jobs-bda0b.firebasestorage.app",
+      messagingSenderId: "867651853389",
+      appId: "1:867651853389:web:9f1a66c0789584d9721004"
+    };
 
-    function getJobs() {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    }
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    function saveJobs(jobs) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
-    }
-
-    document.getElementById("formRecruteurJob").addEventListener("submit", function(e) {
+    document.getElementById("formRecruteurJob").addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      const nouvelleOffre = {
-        id: Date.now(),
-        typeAnnonce: "job",
+      const offre = {
         entreprise: document.getElementById("entreprise").value,
         titre: document.getElementById("titre").value,
         lieu: document.getElementById("lieu").value,
@@ -148,21 +132,22 @@
         profil: document.getElementById("profil").value,
         telephone: document.getElementById("telephone").value,
         email: document.getElementById("email").value,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        statut: "En attente"
       };
 
-      if (!nouvelleOffre.entreprise || !nouvelleOffre.titre || !nouvelleOffre.lieu || !nouvelleOffre.description || !nouvelleOffre.telephone) {
+      if (!offre.entreprise || !offre.titre || !offre.lieu || !offre.description || !offre.telephone) {
         alert("Veuillez remplir tous les champs obligatoires (*)");
         return;
       }
 
-      const jobs = getJobs();
-      jobs.unshift(nouvelleOffre);
-      saveJobs(jobs);
-
-      alert("✅ Votre offre d'emploi a été publiée !");
-      this.reset();
-      window.location.href = "demandes-job.html";
+      try {
+        await db.collection("recruteurs_job").add(offre);
+        alert("✅ Votre offre a été envoyée !");
+        this.reset();
+      } catch(error) {
+        alert("❌ Une erreur s'est produite");
+      }
     });
   </script>
 </body>
