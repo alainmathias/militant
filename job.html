@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ASSIKI SERVICES - Offre d'emploi</title>
+  <title>ASSIKI SERVICES - Candidature spontanée</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
@@ -36,68 +36,58 @@
         <i class="fas fa-handshake text-2xl text-accent"></i>
         <h1 class="text-xl font-bold">ASSIKI SERVICES</h1>
       </div>
-      <p class="text-white/80 text-sm">Offres d'emploi</p>
+      <p class="text-white/80 text-sm">Je cherche du travail</p>
     </div>
 
     <div class="p-5">
-      <div class="flex gap-3 mb-5">
-        <a href="recruteur-personnel.html" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-xl text-center font-bold text-sm">👤 Personnel</a>
-        <a href="recruteur-job.html" class="flex-1 bg-accent text-white py-2 rounded-xl text-center font-bold text-sm">💼 Offre d'emploi</a>
-      </div>
-
       <h2 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-        <i class="fas fa-briefcase text-accent"></i> Je publie une offre d'emploi
+        <i class="fas fa-user-graduate text-accent"></i> Déposez votre candidature
       </h2>
-      <p class="text-gray-500 text-sm mb-5">Vous cherchez à recruter ? Publiez votre offre ici</p>
+      <p class="text-gray-500 text-sm mb-5">Remplissez le formulaire ci-dessous</p>
 
-      <form id="formRecruteurJob" class="space-y-4">
+      <form id="formCandidat" class="space-y-4">
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Nom de l'entreprise / Recruteur *</label>
-          <input type="text" id="entreprise" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: ASSIKI SERVICES">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nom et prénom *</label>
+          <input type="text" id="nom" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Jean ADJANOHOUN">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Titre du poste *</label>
-          <input type="text" id="titre" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Ménagère, Chauffeur...">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Ethnie</label>
+          <input type="text" id="ethnie" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Fon, Adja, Yoruba...">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu du travail *</label>
-          <input type="text" id="lieu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Cotonou, Calavi...">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Religion</label>
+          <input type="text" id="religion" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Chrétien, Musulman...">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Salaire proposé</label>
-          <input type="text" id="salaire" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 50 000 - 75 000 FCFA/mois">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Âge *</label>
+          <input type="number" id="age" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 28">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Type de contrat</label>
-          <select id="contrat" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
-            <option value="">-- Sélectionnez --</option>
-            <option>CDI</option><option>CDD</option><option>Intérim</option>
-            <option>Stage</option><option>Freelance</option><option>Temps partiel</option>
-          </select>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Type de travail *</label>
+          <input type="text" id="typeTravail" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Ménagère, Chauffeur, Baby-sitter...">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Description du poste *</label>
-          <textarea id="description" rows="3" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Décrivez les missions, horaires..."></textarea>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Avez-vous déjà fait ce travail ? *</label>
+          <div class="flex gap-4 mt-1">
+            <label class="flex items-center gap-2">
+              <input type="radio" name="experience" value="Oui" required class="w-4 h-4 text-accent"> <span>Oui</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="experience" value="Non" required class="w-4 h-4 text-accent"> <span>Non</span>
+            </label>
+          </div>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Profil recherché</label>
-          <textarea id="profil" rows="2" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Expérience, compétences..."></textarea>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone pour postuler *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone / WhatsApp *</label>
           <input type="tel" id="telephone" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 229XXXXXXXX">
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Email (optionnel)</label>
-          <input type="email" id="email" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="recrutement@assiki.com">
-        </div>
         <button type="submit" class="w-full bg-accent text-white py-3 rounded-xl font-bold shadow-lg btn-submit mt-4">
-          <i class="fas fa-paper-plane mr-2"></i> PUBLIER L'OFFRE
+          <i class="fas fa-paper-plane mr-2"></i> ENVOYER MA CANDIDATURE
         </button>
       </form>
 
       <div class="mt-6 text-center text-xs text-gray-400">
-        <p>Votre offre sera étudiée par notre équipe</p>
+        <p>Votre candidature sera étudiée par notre équipe</p>
       </div>
     </div>
 
@@ -119,34 +109,35 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    document.getElementById("formRecruteurJob").addEventListener("submit", async function(e) {
+    document.getElementById("formCandidat").addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      const offre = {
-        entreprise: document.getElementById("entreprise").value,
-        titre: document.getElementById("titre").value,
-        lieu: document.getElementById("lieu").value,
-        salaire: document.getElementById("salaire").value,
-        contrat: document.getElementById("contrat").value,
-        description: document.getElementById("description").value,
-        profil: document.getElementById("profil").value,
+      const experience = document.querySelector('input[name="experience"]:checked');
+      
+      const candidat = {
+        nom: document.getElementById("nom").value,
+        ethnie: document.getElementById("ethnie").value,
+        religion: document.getElementById("religion").value,
+        age: parseInt(document.getElementById("age").value),
+        typeTravail: document.getElementById("typeTravail").value,
+        experience: experience ? experience.value : "",
         telephone: document.getElementById("telephone").value,
-        email: document.getElementById("email").value,
         date: new Date().toISOString(),
         statut: "En attente"
       };
 
-      if (!offre.entreprise || !offre.titre || !offre.lieu || !offre.description || !offre.telephone) {
+      if (!candidat.nom || !candidat.age || !candidat.typeTravail || !candidat.experience || !candidat.telephone) {
         alert("Veuillez remplir tous les champs obligatoires (*)");
         return;
       }
 
       try {
-        await db.collection("recruteurs_job").add(offre);
-        alert("✅ Votre offre a été envoyée !");
+        await db.collection("candidats").add(candidat);
+        alert("✅ Votre candidature a été envoyée avec succès !");
         this.reset();
       } catch(error) {
-        alert("❌ Une erreur s'est produite");
+        console.error("Erreur:", error);
+        alert("❌ Une erreur s'est produite. Veuillez réessayer.");
       }
     });
   </script>
