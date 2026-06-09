@@ -269,33 +269,17 @@
         </div>
         
     <!-- ========== ESPACE VIDÉOS (PUBLICITAIRE / PROMOTION) ========== -->
+<!-- ========== ESPACE VIDÉOS (PUBLICITAIRE / PROMOTION) ========== -->
 <div class="mb-8">
   <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-4 shadow-lg">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-white font-bold flex items-center gap-2">
-        <i class="fas fa-video text-accent"></i> VIDÉOS PROMOTIONNELLES
-      </h3>
-      <!-- Bouton admin pour ajouter (visible uniquement si connecté) -->
-      <button id="addVideoBtn" class="bg-accent text-white px-3 py-1 rounded-lg text-xs font-semibold hidden admin-only">
-        <i class="fas fa-plus"></i> Ajouter
-      </button>
-    </div>
+    <h3 class="text-white font-bold flex items-center gap-2 mb-3">
+      <i class="fas fa-video text-accent"></i> VIDÉOS PROMOTIONNELLES
+    </h3>
     
     <!-- Conteneur des vidéos -->
     <div id="videosContainer" class="space-y-3">
       <div class="text-center py-4 text-white/60 text-sm">
         <i class="fas fa-spinner fa-spin"></i> Chargement...
-      </div>
-    </div>
-    
-    <!-- Mode admin : formulaire d'ajout (caché par défaut) -->
-    <div id="addVideoForm" class="hidden mt-3 bg-white/10 rounded-xl p-3">
-      <p class="text-white text-xs font-semibold mb-2">Ajouter une nouvelle vidéo</p>
-      <input type="url" id="videoUrl" placeholder="Lien YouTube ou Vimeo" class="w-full px-3 py-2 rounded-lg text-sm mb-2">
-      <input type="text" id="videoTitle" placeholder="Titre de la vidéo" class="w-full px-3 py-2 rounded-lg text-sm mb-2">
-      <div class="flex gap-2">
-        <button id="saveVideoBtn" class="bg-green-500 text-white px-3 py-1 rounded-lg text-xs">Enregistrer</button>
-        <button id="cancelVideoBtn" class="bg-gray-500 text-white px-3 py-1 rounded-lg text-xs">Annuler</button>
       </div>
     </div>
   </div>
@@ -571,37 +555,61 @@
 
 
 
-// ========== GESTION DES VIDÉOS (ADMIN SEULEMENT) ==========
-const VIDEOS_STORAGE_KEY = "assiki_videos";
+// ========== AFFICHAGE DES VIDÉOS DEPUIS FIREBASE ==========
 
-// Vérifier si l'utilisateur est admin (simulé pour l'instant)
-// À remplacer plus tard par une vraie authentification Firebase
-let isAdmin = true; // Mettre à false pour les visiteurs normaux
-
-// Afficher/cacher les boutons admin
-function toggleAdminButtons() {
-  const adminBtns = document.querySelectorAll('.admin-only');
-  adminBtns.forEach(btn => {
-    if (isAdmin) {
-      btn.classList.remove('hidden');
-    } else {
-      btn.classList.add('hidden');
+// Récupérer et afficher les vidéos depuis Firebase
+async function loadVideosFromFirebase() {
+  const container = document.getElementById("videosContainer");
+  if (!container) return;
+  
+  container.innerHTML = '<div class="text-center py-4 text-white/60 text-sm"><i class="fas fa-spinner fa-spin"></i> Chargement des vidéos...</div>';
+  
+  try {
+    const snapshot = await db.collection("videos").orderBy("date", "desc").get();
+    
+    if (snapshot.empty) {
+      container.innerHTML = `
+        <div class="text-center py-6 text-white/60 bg-white/5 rounded-xl">
+          <i class="fas fa-film text-2xl mb-2 block"></i>
+          <p class="text-sm">Aucune vidéo pour le moment</p>
+        </div>
+      `;
+      return;
     }
-  });
-}
-
-// Récupérer les vidéos du localStorage
-function getVideos() {
-  return JSON.parse(localStorage.getItem(VIDEOS_STORAGE_KEY)) || [];
-}
-
-// Sauvegarder les vidéos
-function saveVideos(videos) {
-  localStorage.setItem(VIDEOS_STORAGE_KEY, JSON.stringify(videos));
+    
+    container.innerHTML = "";
+    snapshot.forEach(doc => {
+      const video = doc.data();
+      const videoId = doc.id;
+      
+      const videoDiv = document.createElement("div");
+      videoDiv.className = "bg-white/10 rounded-xl overflow-hidden mb-3";
+      videoDiv.innerHTML = `
+        <div class="relative">
+          ${getVideoEmbed(video.url, video.title)}
+        </div>
+        <div class="p-2">
+          <p class="text-white text-sm font-semibold">${escapeHtml(video.title)}</p>
+          ${video.description ? `<p class="text-white/60 text-xs mt-1">${escapeHtml(video.description)}</p>` : ''}
+        </div>
+      `;
+      container.appendChild(videoDiv);
+    });
+    
+  } catch(error) {
+    console.error("Erreur chargement vidéos:", error);
+    container.innerHTML = `
+      <div class="text-center py-6 text-white/60 bg-white/5 rounded-xl">
+        <i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>
+        <p class="text-sm">Impossible de charger les vidéos</p>
+      </div>
+    `;
+  }
 }
 
 // Extraire l'ID YouTube depuis une URL
 function getYouTubeId(url) {
+  if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
@@ -609,89 +617,24 @@ function getYouTubeId(url) {
 
 // Générer l'HTML d'embed pour une vidéo
 function getVideoEmbed(url, title) {
+  if (!url) return '<p class="text-white/60 text-sm p-4">Lien vidéo invalide</p>';
+  
   const youtubeId = getYouTubeId(url);
   if (youtubeId) {
-    return `<iframe class="w-full h-48 rounded-xl" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
+    return `<iframe class="w-full h-48 rounded-t-xl" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
   }
-  // Si c'est une autre plateforme, essayer d'embed directement
-  return `<video class="w-full rounded-xl" controls src="${url}"></video>`;
+  
+  // Si c'est une autre plateforme ou fichier direct
+  if (url.includes("vimeo.com")) {
+    return `<iframe class="w-full h-48 rounded-t-xl" src="${url}" frameborder="0" allowfullscreen></iframe>`;
+  }
+  
+  // Sinon, essayer comme fichier vidéo direct
+  return `<video class="w-full rounded-t-xl" controls src="${url}"></video>`;
 }
 
-// Afficher les vidéos
-function displayVideos() {
-  const container = document.getElementById("videosContainer");
-  const videos = getVideos();
-  
-  if (videos.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-6 text-white/60 bg-white/5 rounded-xl">
-        <i class="fas fa-film text-2xl mb-2"></i>
-        <p class="text-sm">Aucune vidéo pour le moment</p>
-        ${isAdmin ? '<p class="text-xs mt-1">Cliquez sur "Ajouter" pour ajouter une vidéo</p>' : ''}
-      </div>
-    `;
-    return;
-  }
-  
-  container.innerHTML = videos.map((video, index) => `
-    <div class="bg-white/10 rounded-xl overflow-hidden">
-      <div class="relative">
-        ${getVideoEmbed(video.url, video.title)}
-        ${isAdmin ? `
-          <button onclick="deleteVideo(${index})" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition">
-            <i class="fas fa-trash"></i>
-          </button>
-        ` : ''}
-      </div>
-      <div class="p-2">
-        <p class="text-white text-sm font-semibold">${escapeHtml(video.title)}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Supprimer une vidéo
-window.deleteVideo = function(index) {
-  if (!isAdmin) return;
-  const videos = getVideos();
-  videos.splice(index, 1);
-  saveVideos(videos);
-  displayVideos();
-};
-
-// Ajouter une vidéo
-document.getElementById("addVideoBtn")?.addEventListener("click", () => {
-  document.getElementById("addVideoForm").classList.toggle("hidden");
-});
-
-document.getElementById("cancelVideoBtn")?.addEventListener("click", () => {
-  document.getElementById("addVideoForm").classList.add("hidden");
-  document.getElementById("videoUrl").value = "";
-  document.getElementById("videoTitle").value = "";
-});
-
-document.getElementById("saveVideoBtn")?.addEventListener("click", () => {
-  const url = document.getElementById("videoUrl").value;
-  const title = document.getElementById("videoTitle").value;
-  
-  if (!url || !title) {
-    alert("Veuillez remplir tous les champs");
-    return;
-  }
-  
-  const videos = getVideos();
-  videos.push({ url: url, title: title, date: new Date().toISOString() });
-  saveVideos(videos);
-  
-  document.getElementById("addVideoForm").classList.add("hidden");
-  document.getElementById("videoUrl").value = "";
-  document.getElementById("videoTitle").value = "";
-  displayVideos();
-});
-
-// Initialiser l'affichage des vidéos
-toggleAdminButtons();
-displayVideos();
+// Appeler le chargement des vidéos au démarrage
+loadVideosFromFirebase();
   </script>
 </body>
 </html>
