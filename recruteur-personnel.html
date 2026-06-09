@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ASSIKI SERVICES - Recrutement personnel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore-compat.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#1a4a6f', secondary: '#0f2b3d', accent: '#e67e22' }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #f3f4f6; }
+    .sidebar { transition: transform 0.3s ease-in-out; }
+    .sidebar-mobile { transform: translateX(-100%); }
+    .sidebar-mobile.open { transform: translateX(0); }
+    @media (min-width: 768px) { .sidebar-mobile { transform: translateX(0) !important; } }
+    .btn-submit { transition: all 0.3s ease; }
+    .btn-submit:hover { transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.15); }
+  </style>
+</head>
+<body class="font-sans overflow-x-hidden">
+
+<div class="min-h-screen flex overflow-x-hidden">
+  
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="sidebar sidebar-mobile fixed md:relative z-30 w-72 bg-gradient-to-b from-primary to-secondary h-full shadow-2xl transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center"><i class="fas fa-handshake text-primary text-xl"></i></div>
+        <div><h2 class="text-white font-bold text-xl">ASSIKI SERVICES</h2><p class="text-white/50 text-xs">Agence de placement</p></div>
+      </div>
+    </div>
+    <nav class="p-4 space-y-2">
+      <a href="index.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 transition"><i class="fas fa-tachometer-alt w-5"></i><span>Tableau de bord</span></a>
+      <a href="recruteur-personnel.html" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white transition"><i class="fas fa-user-tie w-5"></i><span>Recherche du Personnel</span></a>
+      <a href="recruteur-job.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 transition"><i class="fas fa-briefcase w-5"></i><span>Recherche de Jobs</span></a>
+      <a href="offres.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 transition"><i class="fas fa-eye w-5"></i><span>Nos offres d'emploi</span></a>
+      <div class="border-t border-white/20 my-2"></div>
+      <a href="parcours.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 transition"><i class="fas fa-history w-5"></i><span>Notre parcours</span></a>
+      <a href="presentation.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 transition"><i class="fas fa-align-left w-5"></i><span>Presentation de ASSIKI-SERVICES</span></a>
+    </nav>
+    <div class="absolute bottom-5 left-0 right-0 p-4 border-t border-white/10 bg-primary/30">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center"><i class="fas fa-user text-white"></i></div>
+        <div class="flex-1"><p class="text-white text-sm font-medium">Admin</p><p class="text-white/40 text-xs">assiki@services.com</p></div>
+        <i class="fas fa-sign-out-alt text-white/40"></i>
+      </div>
+    </div>
+  </div>
+
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="flex-1 min-h-screen overflow-x-hidden w-full">
+    <div class="md:hidden bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
+      <button id="menuBtn" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"><i class="fas fa-bars text-primary text-lg"></i></button>
+      <div class="flex items-center gap-2"><div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center"><i class="fas fa-handshake text-primary text-sm"></i></div><span class="font-bold text-lg text-primary">ASSIKI SERVICES</span></div>
+      <div class="w-10"></div>
+    </div>
+
+    <div class="p-5 md:p-6 max-w-md mx-auto">
+      <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-5 text-white mb-6">
+        <h1 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-user-tie"></i> Recherche du Personnel</h1>
+        <p class="text-white/80 text-sm mt-1">Vous avez besoin d'une ménagère, d'un chauffeur ? Publiez votre besoin</p>
+      </div>
+
+      <form id="formRecruteurPersonnel" class="bg-white rounded-2xl p-5 shadow-sm space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nom et prénom *</label>
+          <input type="text" id="nom" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent" placeholder="Ex: Jean ADJANOHOUN">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu du travail *</label>
+          <input type="text" id="lieu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Cotonou, Calavi...">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Téléphone / WhatsApp *</label>
+          <input type="tel" id="telephone" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: 229XXXXXXXX">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Type de personnel recherché *</label>
+          <select id="type" required class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+            <option value="">-- Sélectionnez --</option>
+            <option>Ménagère</option><option>Baby-sitter</option><option>Nourrice</option>
+            <option>Chauffeur</option><option>Entretien</option><option>Fleuriste</option>
+            <option>Jardinier</option><option>Gardien</option><option>Cuisinier</option><option>Autre</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Tranche d'âge</label>
+            <select id="age" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+              <option value="">-- Optionnel --</option>
+              <option>18-25 ans</option><option>26-35 ans</option><option>36-45 ans</option><option>46-55 ans</option><option>55 ans et +</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Ethnie</label>
+            <select id="ethnie" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+              <option value="">-- Optionnel --</option>
+              <option>Adja</option><option>Fon</option><option>Goun</option><option>Yoruba</option><option>Bariba</option><option>Dendi</option><option>Peulh</option><option>Autre</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Description du poste</label>
+          <textarea id="description" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Décrivez les tâches, horaires, conditions..."></textarea>
+        </div>
+        <button type="submit" class="w-full bg-accent text-white py-3 rounded-xl font-bold shadow-lg btn-submit mt-4"><i class="fas fa-paper-plane mr-2"></i> PUBLIER MA DEMANDE</button>
+      </form>
+
+      <div class="mt-6 text-center text-xs text-gray-400"><p>Votre demande sera traitée par notre équipe</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAgbEgBgsIzFfgbWm5C0zv6K0KbJOKstiY",
+    authDomain: "jobs-bda0b.firebaseapp.com",
+    projectId: "jobs-bda0b",
+    storageBucket: "jobs-bda0b.firebasestorage.app",
+    messagingSenderId: "867651853389",
+    appId: "1:867651853389:web:9f1a66c0789584d9721004"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  document.getElementById("formRecruteurPersonnel").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const demande = {
+      nom: document.getElementById("nom").value,
+      lieu: document.getElementById("lieu").value,
+      telephone: document.getElementById("telephone").value,
+      type: document.getElementById("type").value,
+      age: document.getElementById("age").value,
+      ethnie: document.getElementById("ethnie").value,
+      description: document.getElementById("description").value,
+      date: new Date().toISOString(),
+      statut: "En attente"
+    };
+    if (!demande.nom || !demande.lieu || !demande.telephone || !demande.type) {
+      alert("Veuillez remplir tous les champs obligatoires (*)");
+      return;
+    }
+    try {
+      await db.collection("recruteurs_personnel").add(demande);
+      alert("✅ Votre demande a été envoyée !");
+      document.getElementById("formRecruteurPersonnel").reset();
+    } catch(error) { alert("❌ Une erreur s'est produite"); }
+  });
+
+  const sidebar = document.getElementById("sidebar"), overlay = document.getElementById("sidebarOverlay"), menuBtn = document.getElementById("menuBtn");
+  menuBtn?.addEventListener("click", () => { sidebar.classList.toggle("open"); overlay.classList.toggle("hidden"); });
+  overlay?.addEventListener("click", () => { sidebar.classList.remove("open"); overlay.classList.add("hidden"); });
+</script>
+</body>
+</html>
