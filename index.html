@@ -578,9 +578,26 @@
 
 
 
-// ========== AFFICHAGE DES VIDÉOS DEPUIS FIREBASE ==========
+// // ========== CONFIGURATION ==========
+const CLOUD_NAME = "djnqwtapp";  // À ajouter au début
 
-// Récupérer et afficher les vidéos depuis Firebase
+// ========== INITIALISATION FIREBASE (À AJOUTER) ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyAgbEgBgsIzFfgbWm5C0zv6K0KbJOKstiY",
+  authDomain: "jobs-bda0b.firebaseapp.com",
+  projectId: "jobs-bda0b",
+  storageBucket: "jobs-bda0b.firebasestorage.app",
+  messagingSenderId: "867651853389",
+  appId: "1:867651853389:web:9f1a66c0789584d9721004"
+};
+
+// Initialiser Firebase (si pas déjà fait)
+if (!firebase.apps || !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+// ========== AFFICHAGE DES VIDÉOS DEPUIS FIREBASE ==========
 async function loadVideosFromFirebase() {
   const container = document.getElementById("videosContainer");
   if (!container) return;
@@ -649,7 +666,11 @@ function getVideoEmbed(url, title) {
   
   // 1. Vérifier si c'est Cloudinary
   if (isCloudinaryUrl(url)) {
-    return `<video class="w-full rounded-t-xl" controls poster="https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0/${url.split('/').pop().split('.')[0]}.jpg">
+    // Extraire l'ID public pour la miniature
+    let publicId = url.split('/').pop().split('.')[0];
+    // Nettoyer les paramètres éventuels
+    publicId = publicId.split('?')[0];
+    return `<video class="w-full rounded-t-xl" controls poster="https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0/${publicId}.jpg">
               <source src="${url}" type="video/mp4">
               Votre navigateur ne supporte pas la lecture vidéo.
             </video>`;
@@ -669,17 +690,6 @@ function getVideoEmbed(url, title) {
   
   // 4. Sinon, essayer comme fichier vidéo direct
   return `<video class="w-full rounded-t-xl" controls src="${url}"></video>`;
-}
-
-// Fonction escapeHtml (si pas déjà définie)
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/[&<>]/g, m => {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
 }
 
 // Appeler le chargement des vidéos au démarrage
