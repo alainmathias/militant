@@ -32,11 +32,7 @@
 <body class="font-sans">
 
   <!-- ========== ÉCRAN DE CONNEXION ========== -->
- 
-
-
-
- <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
     <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
       <div class="text-center mb-6">
         <div class="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-3">
@@ -156,19 +152,42 @@
 
     <!-- Conteneur Vidéos -->
     <div id="videosContainer" class="p-4 space-y-4 hidden">
+      <!-- Formulaire d'upload Cloudinary -->
       <div class="bg-white rounded-2xl p-5 shadow-sm">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-gray-800"><i class="fas fa-plus-circle text-accent mr-2"></i> Ajouter une vidéo</h3>
-        </div>
+        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <i class="fas fa-cloud-upload-alt text-accent"></i> Ajouter une vidéo
+        </h3>
         <form id="addVideoForm" class="space-y-3">
-          <input type="text" id="videoTitle" placeholder="Titre de la vidéo" required class="w-full px-4 py-3 border border-gray-200 rounded-xl">
-          <input type="url" id="videoUrl" placeholder="Lien YouTube (ex: https://youtu.be/... ou https://youtube.com/watch?v=...)" required class="w-full px-4 py-3 border border-gray-200 rounded-xl">
-          <textarea id="videoDescription" rows="2" placeholder="Description (optionnel)" class="w-full px-4 py-3 border border-gray-200 rounded-xl"></textarea>
-          <button type="submit" class="bg-accent text-white px-5 py-2 rounded-xl font-semibold hover:bg-orange-600 transition">
-            <i class="fas fa-save mr-1"></i> Publier la vidéo
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Titre de la vidéo *</label>
+            <input type="text" id="videoTitle" required class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Ex: Présentation ASSIKI SERVICES">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Fichier vidéo *</label>
+            <input type="file" id="videoFile" accept="video/*" required class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+            <p class="text-xs text-gray-400 mt-1">Formats supportés : MP4, MOV, AVI, WEBM (max 100MB)</p>
+          </div>
+          
+          <div id="uploadProgress" class="hidden">
+            <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div id="progressBar" class="bg-accent h-2 transition-all" style="width: 0%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-spinner fa-spin"></i> Upload en cours...</p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+            <textarea id="videoDescription" rows="2" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="Description optionnelle de la vidéo"></textarea>
+          </div>
+          
+          <button type="submit" id="submitVideoBtn" class="bg-accent text-white px-5 py-2 rounded-xl font-semibold hover:bg-orange-600 transition">
+            <i class="fas fa-upload mr-1"></i> Publier la vidéo
           </button>
         </form>
       </div>
+      
+      <!-- Liste des vidéos existantes -->
       <div id="videosList" class="space-y-3">
         <div class="text-center py-8 text-gray-400"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
       </div>
@@ -189,6 +208,10 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+
+    // ========== CONFIGURATION CLOUDINARY ==========
+    const CLOUD_NAME = "djnqwtapp";
+    const UPLOAD_PRESET = "militant";
 
     // Références collections
     const personnelCol = db.collection("recruteurs_personnel");
@@ -211,12 +234,41 @@
       return date.toLocaleDateString('fr-FR');
     }
 
-    // Extraire l'ID YouTube
-    function getYouTubeId(url) {
-      if (!url) return null;
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-      const match = url.match(regExp);
-      return (match && match[2].length === 11) ? match[2] : null;
+    // ========== UPLOAD VERS CLOUDINARY ==========
+    async function uploadToCloudinary(file, onProgress) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      formData.append("resource_type", "video");
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable && onProgress) {
+            const percent = (e.loaded / e.total) * 100;
+            onProgress(percent);
+          }
+        });
+        
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            if (data.secure_url) {
+              resolve(data.secure_url);
+            } else {
+              reject(new Error("Erreur upload Cloudinary"));
+            }
+          } else {
+            reject(new Error("Erreur HTTP: " + xhr.status));
+          }
+        };
+        
+        xhr.onerror = () => reject(new Error("Erreur réseau"));
+        
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`);
+        xhr.send(formData);
+      });
     }
 
     // ========== MISES À JOUR DES STATISTIQUES ==========
@@ -379,8 +431,8 @@
         container.innerHTML = "";
         snapshot.forEach(doc => {
           const video = doc.data();
-          const youtubeId = getYouTubeId(video.url);
-          const embedHtml = youtubeId ? `<iframe class="w-full h-48 rounded-xl" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>` : `<video class="w-full rounded-xl" controls src="${video.url}"></video>`;
+          // Générer l'embed HTML pour Cloudinary
+          const embedHtml = `<video class="w-full rounded-t-xl" controls src="${video.url}"></video>`;
           
           container.innerHTML += `
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
@@ -431,29 +483,69 @@
       }
     };
 
-    // Formulaire ajout vidéo
+    // Formulaire ajout vidéo avec Cloudinary
     document.getElementById("addVideoForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const title = document.getElementById("videoTitle").value;
-      const url = document.getElementById("videoUrl").value;
-      const description = document.getElementById("videoDescription").value;
       
-      if (!title || !url) {
-        alert("Veuillez remplir le titre et l'URL");
+      const title = document.getElementById("videoTitle").value;
+      const videoFile = document.getElementById("videoFile").files[0];
+      const description = document.getElementById("videoDescription").value;
+      const submitBtn = document.getElementById("submitVideoBtn");
+      const progressDiv = document.getElementById("uploadProgress");
+      const progressBar = document.getElementById("progressBar");
+      
+      if (!title || !videoFile) {
+        alert("Veuillez remplir le titre et sélectionner une vidéo");
+        return;
+      }
+      
+      // Vérifier la taille (max 100MB)
+      if (videoFile.size > 100 * 1024 * 1024) {
+        alert("La vidéo ne doit pas dépasser 100MB");
+        return;
+      }
+      
+      // Vérifier le format
+      const allowedTypes = ["video/mp4", "video/quicktime", "video/x-msvideo", "video/webm"];
+      if (!allowedTypes.includes(videoFile.type)) {
+        alert("Format non supporté. Utilisez MP4, MOV, AVI ou WEBM");
         return;
       }
       
       try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Upload en cours...';
+        progressDiv.classList.remove("hidden");
+        progressBar.style.width = "0%";
+        
+        // Upload vers Cloudinary
+        const videoUrl = await uploadToCloudinary(videoFile, (percent) => {
+          progressBar.style.width = `${percent}%`;
+        });
+        
+        // Sauvegarder dans Firebase
         await videosCol.add({
           title: title,
-          url: url,
+          url: videoUrl,
           description: description,
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
+          type: "cloudinary"
         });
-        alert("✅ Vidéo ajoutée !");
+        
+        alert("✅ Vidéo ajoutée avec succès !");
         document.getElementById("addVideoForm").reset();
+        progressDiv.classList.add("hidden");
+        progressBar.style.width = "0%";
         loadVideos();
-      } catch(e) { alert("❌ Erreur: " + e.message); }
+        
+      } catch(error) {
+        console.error("Erreur:", error);
+        alert("❌ Erreur lors de l'upload: " + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-upload mr-1"></i> Publier la vidéo';
+        progressDiv.classList.add("hidden");
+      }
     });
 
     // ========== GESTION DES ONGLETS ==========
@@ -484,7 +576,7 @@
     });
 
     // ========== AUTHENTIFICATION ==========
-   document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("adminEmail").value;
       const password = document.getElementById("adminPassword").value;
