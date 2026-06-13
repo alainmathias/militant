@@ -578,10 +578,10 @@
 
 
 
-// // ========== CONFIGURATION ==========
-const CLOUD_NAME = "djnqwtapp";  // À ajouter au début
+// ========== CONFIGURATION ==========
+const CLOUD_NAME = "djnqwtapp";
 
-// ========== INITIALISATION FIREBASE (À AJOUTER) ==========
+// ========== INITIALISATION FIREBASE ==========
 const firebaseConfig = {
   apiKey: "AIzaSyAgbEgBgsIzFfgbWm5C0zv6K0KbJOKstiY",
   authDomain: "jobs-bda0b.firebaseapp.com",
@@ -591,20 +591,32 @@ const firebaseConfig = {
   appId: "1:867651853389:web:9f1a66c0789584d9721004"
 };
 
-// Initialiser Firebase (si pas déjà fait)
-if (!firebase.apps || !firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+// Initialiser Firebase si pas déjà fait
+if (typeof firebase !== 'undefined' && !firebase.apps || !firebase.apps || !firebase.apps.length) {
+  try {
+    firebase.initializeApp(firebaseConfig);
+  } catch(e) {
+    console.log("Firebase déjà initialisé");
+  }
 }
 const db = firebase.firestore();
 
 // ========== AFFICHAGE DES VIDÉOS DEPUIS FIREBASE ==========
 async function loadVideosFromFirebase() {
   const container = document.getElementById("videosContainer");
-  if (!container) return;
+  if (!container) {
+    console.log("Conteneur videosContainer non trouvé");
+    return;
+  }
   
   container.innerHTML = '<div class="text-center py-4 text-white/60 text-sm"><i class="fas fa-spinner fa-spin"></i> Chargement des vidéos...</div>';
   
   try {
+    // Vérifier que db est disponible
+    if (!db) {
+      throw new Error("Firebase non initialisé");
+    }
+    
     const snapshot = await db.collection("videos").orderBy("date", "desc").get();
     
     if (snapshot.empty) {
@@ -620,6 +632,7 @@ async function loadVideosFromFirebase() {
     container.innerHTML = "";
     snapshot.forEach(doc => {
       const video = doc.data();
+      console.log("Vidéo trouvée:", video.title, video.url);
       
       const videoDiv = document.createElement("div");
       videoDiv.className = "bg-white/10 rounded-xl overflow-hidden mb-3";
@@ -636,11 +649,12 @@ async function loadVideosFromFirebase() {
     });
     
   } catch(error) {
-    console.error("Erreur chargement vidéos:", error);
+    console.error("Erreur détaillée chargement vidéos:", error);
     container.innerHTML = `
       <div class="text-center py-6 text-white/60 bg-white/5 rounded-xl">
         <i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>
-        <p class="text-sm">Impossible de charger les vidéos</p>
+        <p class="text-sm">Erreur: ${error.message}</p>
+        <p class="text-xs mt-2">Vérifiez votre connexion internet</p>
       </div>
     `;
   }
@@ -662,15 +676,13 @@ function isCloudinaryUrl(url) {
 
 // Générer l'HTML d'embed pour une vidéo
 function getVideoEmbed(url, title) {
+  console.log("Génération embed pour:", url);
+  
   if (!url) return '<p class="text-white/60 text-sm p-4">Lien vidéo invalide</p>';
   
   // 1. Vérifier si c'est Cloudinary
   if (isCloudinaryUrl(url)) {
-    // Extraire l'ID public pour la miniature
-    let publicId = url.split('/').pop().split('.')[0];
-    // Nettoyer les paramètres éventuels
-    publicId = publicId.split('?')[0];
-    return `<video class="w-full rounded-t-xl" controls poster="https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0/${publicId}.jpg">
+    return `<video class="w-full rounded-t-xl" controls style="max-height: 250px; width: 100%;">
               <source src="${url}" type="video/mp4">
               Votre navigateur ne supporte pas la lecture vidéo.
             </video>`;
@@ -679,21 +691,45 @@ function getVideoEmbed(url, title) {
   // 2. Vérifier si c'est YouTube
   const youtubeId = getYouTubeId(url);
   if (youtubeId) {
-    return `<iframe class="w-full h-48 rounded-t-xl" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
+    return `<iframe class="w-full rounded-t-xl" style="height: 200px; width: 100%;" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
   }
   
   // 3. Vérifier si c'est Vimeo
   if (url.includes("vimeo.com")) {
     const vimeoId = url.split('/').pop();
-    return `<iframe class="w-full h-48 rounded-t-xl" src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allowfullscreen></iframe>`;
+    return `<iframe class="w-full rounded-t-xl" style="height: 200px; width: 100%;" src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allowfullscreen></iframe>`;
   }
   
   // 4. Sinon, essayer comme fichier vidéo direct
-  return `<video class="w-full rounded-t-xl" controls src="${url}"></video>`;
+  return `<video class="w-full rounded-t-xl" controls style="max-height: 250px; width: 100%;" src="${url}"></video>`;
 }
 
-// Appeler le chargement des vidéos au démarrage
-loadVideosFromFirebase();
+// Fonction escapeHtml (supprimer le doublon)
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+// Vérifier que Firebase est chargé avant d'appeler
+if (typeof firebase !== 'undefined') {
+  // Attendre un peu que Firebase soit prêt
+  setTimeout(() => {
+    loadVideosFromFirebase();
+  }, 500);
+} else {
+  console.error("Firebase SDK non chargé");
+  document.getElementById("videosContainer").innerHTML = `
+    <div class="text-center py-6 text-white/60 bg-white/5 rounded-xl">
+      <i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>
+      <p class="text-sm">Erreur de chargement de Firebase</p>
+    </div>
+  `;
+}
   </script>
 </body>
 </html>
