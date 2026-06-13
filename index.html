@@ -603,7 +603,6 @@ async function loadVideosFromFirebase() {
     container.innerHTML = "";
     snapshot.forEach(doc => {
       const video = doc.data();
-      const videoId = doc.id;
       
       const videoDiv = document.createElement("div");
       videoDiv.className = "bg-white/10 rounded-xl overflow-hidden mb-3";
@@ -635,25 +634,52 @@ function getYouTubeId(url) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+  return (match && match[2] && match[2].length === 11) ? match[2] : null;
+}
+
+// Vérifier si l'URL est une vidéo Cloudinary
+function isCloudinaryUrl(url) {
+  if (!url) return false;
+  return url.includes('cloudinary.com') || url.includes('res.cloudinary.com');
 }
 
 // Générer l'HTML d'embed pour une vidéo
 function getVideoEmbed(url, title) {
   if (!url) return '<p class="text-white/60 text-sm p-4">Lien vidéo invalide</p>';
   
+  // 1. Vérifier si c'est Cloudinary
+  if (isCloudinaryUrl(url)) {
+    return `<video class="w-full rounded-t-xl" controls poster="https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0/${url.split('/').pop().split('.')[0]}.jpg">
+              <source src="${url}" type="video/mp4">
+              Votre navigateur ne supporte pas la lecture vidéo.
+            </video>`;
+  }
+  
+  // 2. Vérifier si c'est YouTube
   const youtubeId = getYouTubeId(url);
   if (youtubeId) {
     return `<iframe class="w-full h-48 rounded-t-xl" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
   }
   
-  // Si c'est une autre plateforme ou fichier direct
+  // 3. Vérifier si c'est Vimeo
   if (url.includes("vimeo.com")) {
-    return `<iframe class="w-full h-48 rounded-t-xl" src="${url}" frameborder="0" allowfullscreen></iframe>`;
+    const vimeoId = url.split('/').pop();
+    return `<iframe class="w-full h-48 rounded-t-xl" src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allowfullscreen></iframe>`;
   }
   
-  // Sinon, essayer comme fichier vidéo direct
+  // 4. Sinon, essayer comme fichier vidéo direct
   return `<video class="w-full rounded-t-xl" controls src="${url}"></video>`;
+}
+
+// Fonction escapeHtml (si pas déjà définie)
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
 }
 
 // Appeler le chargement des vidéos au démarrage
